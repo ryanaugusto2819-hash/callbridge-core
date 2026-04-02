@@ -7,23 +7,23 @@ import {
 } from "recharts";
 
 const hourlyData = [
-  { hour: "8am", calls: 12 }, { hour: "9am", calls: 28 }, { hour: "10am", calls: 35 },
-  { hour: "11am", calls: 42 }, { hour: "12pm", calls: 25 }, { hour: "1pm", calls: 30 },
-  { hour: "2pm", calls: 38 }, { hour: "3pm", calls: 45 }, { hour: "4pm", calls: 33 },
-  { hour: "5pm", calls: 20 },
+  { hour: "8h", calls: 12 }, { hour: "9h", calls: 28 }, { hour: "10h", calls: 35 },
+  { hour: "11h", calls: 42 }, { hour: "12h", calls: 25 }, { hour: "13h", calls: 30 },
+  { hour: "14h", calls: 38 }, { hour: "15h", calls: 45 }, { hour: "16h", calls: 33 },
+  { hour: "17h", calls: 20 },
 ];
 
 const weeklyData = [
-  { day: "Mon", inbound: 120, outbound: 80 }, { day: "Tue", inbound: 145, outbound: 95 },
-  { day: "Wed", inbound: 130, outbound: 110 }, { day: "Thu", inbound: 160, outbound: 85 },
-  { day: "Fri", inbound: 140, outbound: 100 }, { day: "Sat", inbound: 60, outbound: 30 },
-  { day: "Sun", inbound: 40, outbound: 20 },
+  { day: "Seg", inbound: 120, outbound: 80 }, { day: "Ter", inbound: 145, outbound: 95 },
+  { day: "Qua", inbound: 130, outbound: 110 }, { day: "Qui", inbound: 160, outbound: 85 },
+  { day: "Sex", inbound: 140, outbound: 100 }, { day: "Sáb", inbound: 60, outbound: 30 },
+  { day: "Dom", inbound: 40, outbound: 20 },
 ];
 
 const callTypeData = [
-  { name: "Answered", value: 340, color: "hsl(142, 71%, 45%)" },
-  { name: "Missed", value: 45, color: "hsl(0, 72%, 51%)" },
-  { name: "Voicemail", value: 28, color: "hsl(38, 92%, 50%)" },
+  { name: "Atendidas", value: 340, color: "hsl(142, 71%, 45%)" },
+  { name: "Perdidas", value: 45, color: "hsl(0, 72%, 51%)" },
+  { name: "Caixa Postal", value: 28, color: "hsl(38, 92%, 50%)" },
 ];
 
 const agentActivity = [
@@ -43,23 +43,23 @@ const statusColors: Record<string, string> = {
 };
 
 const metrics = [
-  { label: "Total Calls Today", value: "413", icon: PhoneIncoming, change: "+12%", positive: true },
-  { label: "Answered", value: "340", icon: PhoneOutgoing, change: "+8%", positive: true },
-  { label: "Missed Calls", value: "45", icon: PhoneMissed, change: "-15%", positive: true },
-  { label: "Avg Handle Time", value: "4:12", icon: Clock, change: "-3%", positive: true },
-  { label: "Agents Online", value: "12", icon: Users, change: "", positive: true },
-  { label: "Service Level", value: "92%", icon: TrendingUp, change: "+2%", positive: true },
+  { label: "Total de Chamadas Hoje", value: "413", icon: PhoneIncoming, change: "+12%", positive: true },
+  { label: "Atendidas", value: "340", icon: PhoneOutgoing, change: "+8%", positive: true },
+  { label: "Chamadas Perdidas", value: "45", icon: PhoneMissed, change: "-15%", positive: true },
+  { label: "Tempo Médio", value: "4:12", icon: Clock, change: "-3%", positive: true },
+  { label: "Agentes Online", value: "12", icon: Users, change: "", positive: true },
+  { label: "Nível de Serviço", value: "92%", icon: TrendingUp, change: "+2%", positive: true },
 ];
 
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Real-time overview of your call center operations</p>
+        <h1 className="text-2xl font-bold">Painel</h1>
+        <p className="text-sm text-muted-foreground">Visão geral em tempo real das operações do call center</p>
       </div>
 
-      {/* Metrics */}
+      {/* Métricas */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {metrics.map((m) => (
           <Card key={m.label}>
@@ -79,11 +79,11 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Charts Row */}
+      {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Calls by Hour</CardTitle>
+            <CardTitle className="text-sm font-medium">Chamadas por Hora</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -91,14 +91,7 @@ export default function DashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="hour" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
                 <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
-                <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
-                    color: "hsl(var(--foreground))",
-                  }}
-                />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", color: "hsl(var(--foreground))" }} />
                 <Bar dataKey="calls" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -107,7 +100,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Call Breakdown</CardTitle>
+            <CardTitle className="text-sm font-medium">Distribuição de Chamadas</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
             <ResponsiveContainer width="100%" height={180}>
@@ -117,14 +110,7 @@ export default function DashboardPage() {
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
-                    color: "hsl(var(--foreground))",
-                  }}
-                />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", color: "hsl(var(--foreground))" }} />
               </PieChart>
             </ResponsiveContainer>
             <div className="flex gap-4 text-xs">
@@ -139,11 +125,11 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Weekly + Agent Activity */}
+      {/* Volume Semanal + Atividade dos Agentes */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Weekly Volume</CardTitle>
+            <CardTitle className="text-sm font-medium">Volume Semanal</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -151,14 +137,7 @@ export default function DashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="day" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
                 <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
-                <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
-                    color: "hsl(var(--foreground))",
-                  }}
-                />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", color: "hsl(var(--foreground))" }} />
                 <Line type="monotone" dataKey="inbound" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
                 <Line type="monotone" dataKey="outbound" stroke="hsl(var(--status-available))" strokeWidth={2} dot={false} />
               </LineChart>
@@ -168,7 +147,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Agent Activity</CardTitle>
+            <CardTitle className="text-sm font-medium">Atividade dos Agentes</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {agentActivity.map((agent) => (
@@ -178,7 +157,7 @@ export default function DashboardPage() {
                   <span className="text-sm font-medium">{agent.name}</span>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                  <span>{agent.calls} calls</span>
+                  <span>{agent.calls} chamadas</span>
                   <Badge variant="secondary" className="text-xs">{agent.avgDuration}</Badge>
                 </div>
               </div>

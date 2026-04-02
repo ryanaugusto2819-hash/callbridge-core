@@ -33,7 +33,6 @@ export default function DialerPage() {
 
   const handleDigit = useCallback((digit: string) => {
     if (isInCall) {
-      // DTMF tone during call - would use Twilio SDK
       console.log("DTMF:", digit);
     } else {
       setPhoneNumber((prev) => prev + digit);
@@ -47,7 +46,6 @@ export default function DialerPage() {
   const handleCall = () => {
     if (phoneNumber.length > 0) {
       setIsInCall(true);
-      // Would initiate Twilio call here
     }
   };
 
@@ -68,51 +66,47 @@ export default function DialerPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Dialer</h1>
-        <p className="text-sm text-muted-foreground">Make and receive calls</p>
+        <h1 className="text-2xl font-bold">Discador</h1>
+        <p className="text-sm text-muted-foreground">Fazer e receber chamadas</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Dialer Panel */}
         <Card className="lg:col-span-1">
           <CardContent className="p-6">
-            {/* Search */}
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search contacts..."
+                placeholder="Buscar contatos..."
                 className="pl-9"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
-            {/* Phone Number Display */}
             <div className="text-center mb-4">
               <div className="flex items-center justify-center gap-2">
                 <input
                   type="text"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="Enter number"
+                  placeholder="Digite o número"
                   className="text-2xl font-mono text-center bg-transparent border-none outline-none w-full text-foreground placeholder:text-muted-foreground"
                 />
                 {phoneNumber && (
-                  <Button variant="ghost" size="icon" onClick={handleBackspace} aria-label="Delete">
+                  <Button variant="ghost" size="icon" onClick={handleBackspace} aria-label="Apagar">
                     <Delete className="h-4 w-4" />
                   </Button>
                 )}
               </div>
             </div>
 
-            {/* Keypad */}
             <div className="grid grid-cols-3 gap-2 mb-4">
               {dialPad.map(({ digit, letters }) => (
                 <button
                   key={digit}
                   onClick={() => handleDigit(digit)}
                   className="keypad-btn flex flex-col items-center justify-center h-14 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
-                  aria-label={`Dial ${digit}`}
+                  aria-label={`Discar ${digit}`}
                 >
                   <span className="text-lg font-semibold text-foreground">{digit}</span>
                   {letters && <span className="text-[10px] text-muted-foreground tracking-widest">{letters}</span>}
@@ -120,48 +114,45 @@ export default function DialerPage() {
               ))}
             </div>
 
-            {/* Call / Hangup Button */}
             {!isInCall ? (
               <Button
                 onClick={handleCall}
                 disabled={!phoneNumber}
                 className="w-full h-12 text-base gap-2 bg-status-available hover:bg-status-available/90 text-primary-foreground"
-                aria-label="Start call"
+                aria-label="Iniciar chamada"
               >
                 <Phone className="h-5 w-5" />
-                Call
+                Ligar
               </Button>
             ) : (
               <Button
                 onClick={handleHangup}
                 className="w-full h-12 text-base gap-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                aria-label="End call"
+                aria-label="Encerrar chamada"
               >
                 <PhoneOff className="h-5 w-5" />
-                End Call
+                Encerrar
               </Button>
             )}
           </CardContent>
         </Card>
 
-        {/* Active Call Panel */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               {isInCall ? (
                 <>
                   <span className="h-2 w-2 rounded-full status-on-call animate-pulse" />
-                  Active Call
+                  Chamada Ativa
                 </>
               ) : (
-                "No Active Call"
+                "Nenhuma Chamada Ativa"
               )}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {isInCall ? (
               <div className="space-y-6">
-                {/* Call Info */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -169,26 +160,25 @@ export default function DialerPage() {
                     </div>
                     <div>
                       <p className="font-semibold">{phoneNumber}</p>
-                      <p className="text-sm text-muted-foreground">Unknown Contact</p>
+                      <p className="text-sm text-muted-foreground">Contato Desconhecido</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-mono">{formatDuration(callDuration)}</p>
-                    <Badge variant="secondary" className="mt-1">Outbound</Badge>
+                    <Badge variant="secondary" className="mt-1">Saída</Badge>
                   </div>
                 </div>
 
-                {/* Call Controls */}
                 <div className="flex items-center justify-center gap-3">
                   <Button
                     variant={isMuted ? "destructive" : "secondary"}
                     size="lg"
                     onClick={() => setIsMuted(!isMuted)}
                     className="gap-2"
-                    aria-label={isMuted ? "Unmute" : "Mute"}
+                    aria-label={isMuted ? "Desmutar" : "Mutar"}
                   >
                     {isMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                    {isMuted ? "Unmute" : "Mute"}
+                    {isMuted ? "Desmutar" : "Mutar"}
                   </Button>
 
                   <Button
@@ -196,10 +186,10 @@ export default function DialerPage() {
                     size="lg"
                     onClick={() => setIsOnHold(!isOnHold)}
                     className="gap-2"
-                    aria-label={isOnHold ? "Resume" : "Hold"}
+                    aria-label={isOnHold ? "Retomar" : "Espera"}
                   >
                     {isOnHold ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-                    {isOnHold ? "Resume" : "Hold"}
+                    {isOnHold ? "Retomar" : "Espera"}
                   </Button>
 
                   <Button
@@ -207,14 +197,13 @@ export default function DialerPage() {
                     size="lg"
                     onClick={() => setShowDtmf(!showDtmf)}
                     className="gap-2"
-                    aria-label="DTMF Keypad"
+                    aria-label="Teclado DTMF"
                   >
                     <Grid3X3 className="h-4 w-4" />
-                    Keypad
+                    Teclado
                   </Button>
                 </div>
 
-                {/* DTMF Overlay */}
                 {showDtmf && (
                   <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
                     {dialPad.map(({ digit }) => (
@@ -229,11 +218,10 @@ export default function DialerPage() {
                   </div>
                 )}
 
-                {/* Call Notes */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Call Notes</label>
+                  <label className="text-sm font-medium mb-2 block">Notas da Chamada</label>
                   <Textarea
-                    placeholder="Add notes about this call..."
+                    placeholder="Adicionar notas sobre esta chamada..."
                     value={callNotes}
                     onChange={(e) => setCallNotes(e.target.value)}
                     rows={4}
@@ -243,8 +231,8 @@ export default function DialerPage() {
             ) : (
               <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                 <Phone className="h-12 w-12 mb-4 opacity-20" />
-                <p className="text-lg font-medium">No active call</p>
-                <p className="text-sm">Use the dialer to start a call or wait for an incoming call</p>
+                <p className="text-lg font-medium">Nenhuma chamada ativa</p>
+                <p className="text-sm">Use o discador para iniciar uma chamada ou aguarde uma chamada recebida</p>
               </div>
             )}
           </CardContent>

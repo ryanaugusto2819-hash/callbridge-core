@@ -1,14 +1,13 @@
-import { useState } from "react";
 import { Plus, FileText, FolderOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const scripts = [
-  { id: "1", title: "Welcome Script - Inbound", category: "Inbound", updatedAt: "2024-01-14", content: "Hello {{contact_name}}, thank you for calling..." },
-  { id: "2", title: "Cold Call Intro", category: "Outbound", updatedAt: "2024-01-12", content: "Hi {{contact_name}}, my name is {{agent_name}}..." },
-  { id: "3", title: "Billing Inquiry", category: "Support", updatedAt: "2024-01-10", content: "I understand you have a question about your bill..." },
-  { id: "4", title: "Upsell - Premium Plan", category: "Sales", updatedAt: "2024-01-08", content: "Based on your usage, I'd recommend our premium plan..." },
+  { id: "1", title: "Script de Boas-vindas - Entrada", category: "Entrada", updatedAt: "14/01/2024", content: "Olá {{contact_name}}, obrigado por ligar..." },
+  { id: "2", title: "Introdução Chamada Fria", category: "Saída", updatedAt: "12/01/2024", content: "Oi {{contact_name}}, meu nome é {{agent_name}}..." },
+  { id: "3", title: "Consulta de Faturamento", category: "Suporte", updatedAt: "10/01/2024", content: "Entendo que você tem uma dúvida sobre sua fatura..." },
+  { id: "4", title: "Upsell - Plano Premium", category: "Vendas", updatedAt: "08/01/2024", content: "Com base no seu uso, eu recomendaria nosso plano premium..." },
 ];
 
 export default function ScriptsPage() {
@@ -16,12 +15,12 @@ export default function ScriptsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Call Scripts</h1>
-          <p className="text-sm text-muted-foreground">Manage and organize call scripts for your team</p>
+          <h1 className="text-2xl font-bold">Scripts de Chamada</h1>
+          <p className="text-sm text-muted-foreground">Gerencie e organize os scripts de chamada da sua equipe</p>
         </div>
         <Button className="gap-2">
           <Plus className="h-4 w-4" />
-          New Script
+          Novo Script
         </Button>
       </div>
 

@@ -9,11 +9,11 @@ import {
 } from "@/components/ui/table";
 
 const contacts = [
-  { id: "1", name: "John Smith", phone: "+1 (555) 123-4567", email: "john@acme.com", company: "Acme Corp", tags: ["VIP", "Sales"], calls: 12 },
-  { id: "2", name: "Jane Doe", phone: "+1 (555) 987-6543", email: "jane@globex.com", company: "Globex Inc", tags: ["Support"], calls: 5 },
-  { id: "3", name: "Robert Wilson", phone: "+1 (555) 456-7890", email: "rwilson@initech.com", company: "Initech", tags: ["Billing"], calls: 8 },
-  { id: "4", name: "Maria Garcia", phone: "+1 (555) 321-0987", email: "maria@wayne.com", company: "Wayne Enterprises", tags: ["VIP", "Billing"], calls: 15 },
-  { id: "5", name: "David Brown", phone: "+1 (555) 654-3210", email: "david@stark.com", company: "Stark Industries", tags: ["Sales"], calls: 3 },
+  { id: "1", name: "John Smith", phone: "+1 (555) 123-4567", email: "john@acme.com", company: "Acme Corp", tags: ["VIP", "Vendas"], calls: 12 },
+  { id: "2", name: "Jane Doe", phone: "+1 (555) 987-6543", email: "jane@globex.com", company: "Globex Inc", tags: ["Suporte"], calls: 5 },
+  { id: "3", name: "Robert Wilson", phone: "+1 (555) 456-7890", email: "rwilson@initech.com", company: "Initech", tags: ["Financeiro"], calls: 8 },
+  { id: "4", name: "Maria Garcia", phone: "+1 (555) 321-0987", email: "maria@wayne.com", company: "Wayne Enterprises", tags: ["VIP", "Financeiro"], calls: 15 },
+  { id: "5", name: "David Brown", phone: "+1 (555) 654-3210", email: "david@stark.com", company: "Stark Industries", tags: ["Vendas"], calls: 3 },
 ];
 
 export default function ContactsPage() {
@@ -29,12 +29,12 @@ export default function ContactsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Contacts</h1>
-          <p className="text-sm text-muted-foreground">Manage your contact database</p>
+          <h1 className="text-2xl font-bold">Contatos</h1>
+          <p className="text-sm text-muted-foreground">Gerencie sua base de contatos</p>
         </div>
         <Button className="gap-2">
           <Plus className="h-4 w-4" />
-          Add Contact
+          Novo Contato
         </Button>
       </div>
 
@@ -43,7 +43,7 @@ export default function ContactsPage() {
           <div className="flex items-center gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search contacts..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+              <Input placeholder="Buscar contatos..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
           </div>
         </CardHeader>
@@ -51,12 +51,12 @@ export default function ContactsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Phone</TableHead>
+                <TableHead>Nome</TableHead>
+                <TableHead>Telefone</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Company</TableHead>
+                <TableHead>Empresa</TableHead>
                 <TableHead>Tags</TableHead>
-                <TableHead>Calls</TableHead>
+                <TableHead>Chamadas</TableHead>
                 <TableHead className="w-[80px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -77,10 +77,10 @@ export default function ContactsPage() {
                   <TableCell className="text-sm">{c.calls}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Call">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Ligar">
                         <Phone className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="More">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Mais">
                         <MoreHorizontal className="h-3.5 w-3.5" />
                       </Button>
                     </div>

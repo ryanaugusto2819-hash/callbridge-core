@@ -10,23 +10,23 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-sm text-muted-foreground">Configure your call center platform</p>
+        <h1 className="text-2xl font-bold">Configurações</h1>
+        <p className="text-sm text-muted-foreground">Configure sua plataforma de call center</p>
       </div>
 
       <Tabs defaultValue="twilio" className="space-y-4">
         <TabsList>
           <TabsTrigger value="twilio">Twilio</TabsTrigger>
-          <TabsTrigger value="audio">Audio</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="business">Business Hours</TabsTrigger>
-          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="audio">Áudio</TabsTrigger>
+          <TabsTrigger value="notifications">Notificações</TabsTrigger>
+          <TabsTrigger value="business">Horário Comercial</TabsTrigger>
+          <TabsTrigger value="account">Conta</TabsTrigger>
         </TabsList>
 
         <TabsContent value="twilio">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Twilio Configuration</CardTitle>
+              <CardTitle className="text-base">Configuração do Twilio</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -35,38 +35,38 @@ export default function SettingsPage() {
               </div>
               <div className="space-y-2">
                 <Label>Auth Token</Label>
-                <Input placeholder="Your Twilio auth token" type="password" />
+                <Input placeholder="Seu token de autenticação Twilio" type="password" />
               </div>
               <div className="space-y-2">
-                <Label>Phone Number</Label>
-                <Input placeholder="+1 (555) 000-0000" />
+                <Label>Número de Telefone</Label>
+                <Input placeholder="+55 (11) 0000-0000" />
               </div>
               <Separator />
               <div className="space-y-2">
-                <Label>Webhook Base URL</Label>
+                <Label>URL Base do Webhook</Label>
                 <Input value="https://your-project.supabase.co/functions/v1" readOnly />
-                <p className="text-xs text-muted-foreground">Configure these URLs in your Twilio console</p>
+                <p className="text-xs text-muted-foreground">Configure essas URLs no console do Twilio</p>
               </div>
-              <Button>Save Configuration</Button>
+              <Button>Salvar Configuração</Button>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="audio">
           <Card>
-            <CardHeader><CardTitle className="text-base">Audio Settings</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Configurações de Áudio</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Ringtone</Label>
-                  <p className="text-xs text-muted-foreground">Play sound on incoming calls</p>
+                  <Label>Toque</Label>
+                  <p className="text-xs text-muted-foreground">Tocar som em chamadas recebidas</p>
                 </div>
                 <Switch defaultChecked />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Notification Sounds</Label>
-                  <p className="text-xs text-muted-foreground">Play sound for queue and system alerts</p>
+                  <Label>Sons de Notificação</Label>
+                  <p className="text-xs text-muted-foreground">Tocar som para alertas de fila e sistema</p>
                 </div>
                 <Switch defaultChecked />
               </div>
@@ -76,19 +76,19 @@ export default function SettingsPage() {
 
         <TabsContent value="notifications">
           <Card>
-            <CardHeader><CardTitle className="text-base">Notification Preferences</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Preferências de Notificação</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Browser Notifications</Label>
-                  <p className="text-xs text-muted-foreground">Show desktop notifications for incoming calls</p>
+                  <Label>Notificações do Navegador</Label>
+                  <p className="text-xs text-muted-foreground">Mostrar notificações na área de trabalho para chamadas recebidas</p>
                 </div>
                 <Switch defaultChecked />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Email Alerts</Label>
-                  <p className="text-xs text-muted-foreground">Receive email for missed calls</p>
+                  <Label>Alertas por Email</Label>
+                  <p className="text-xs text-muted-foreground">Receber email para chamadas perdidas</p>
                 </div>
                 <Switch />
               </div>
@@ -98,26 +98,26 @@ export default function SettingsPage() {
 
         <TabsContent value="business">
           <Card>
-            <CardHeader><CardTitle className="text-base">Business Hours</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Horário Comercial</CardTitle></CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Business hours configuration coming soon. This will allow you to set operating hours per day of week.</p>
+              <p className="text-sm text-muted-foreground">A configuração de horário comercial estará disponível em breve. Isso permitirá definir horários de funcionamento por dia da semana.</p>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="account">
           <Card>
-            <CardHeader><CardTitle className="text-base">Account Profile</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Perfil da Conta</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Name</Label>
-                <Input placeholder="Your name" />
+                <Label>Nome</Label>
+                <Input placeholder="Seu nome" />
               </div>
               <div className="space-y-2">
                 <Label>Email</Label>
-                <Input placeholder="your@email.com" type="email" />
+                <Input placeholder="seu@email.com" type="email" />
               </div>
-              <Button>Update Profile</Button>
+              <Button>Atualizar Perfil</Button>
             </CardContent>
           </Card>
         </TabsContent>

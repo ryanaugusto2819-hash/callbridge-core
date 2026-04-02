@@ -10,18 +10,17 @@ import {
 } from "@/components/ui/tooltip";
 
 const statusBadgeMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  ringing: { label: "Ringing", variant: "outline" },
-  "in-call": { label: "In Call", variant: "default" },
-  hold: { label: "On Hold", variant: "secondary" },
-  "wrap-up": { label: "Wrap-up", variant: "secondary" },
+  ringing: { label: "Tocando", variant: "outline" },
+  "in-call": { label: "Em Chamada", variant: "default" },
+  hold: { label: "Em Espera", variant: "secondary" },
+  "wrap-up": { label: "Pós-atendimento", variant: "secondary" },
 };
 
-// This would come from Supabase Realtime
 const activeCalls = [
-  { id: "1", agent: "Sarah Chen", contact: "John Smith", phone: "+1 (555) 123-4567", duration: "5:23", status: "in-call", direction: "inbound" },
-  { id: "2", agent: "Mike Johnson", contact: "Jane Doe", phone: "+1 (555) 987-6543", duration: "2:11", status: "ringing", direction: "outbound" },
-  { id: "3", agent: "Emily Davis", contact: "Robert Wilson", phone: "+1 (555) 456-7890", duration: "8:45", status: "hold", direction: "inbound" },
-  { id: "4", agent: "James Wilson", contact: "Unknown", phone: "+1 (555) 321-0987", duration: "0:45", status: "in-call", direction: "inbound" },
+  { id: "1", agent: "Sarah Chen", contact: "John Smith", phone: "+1 (555) 123-4567", duration: "5:23", status: "in-call", direction: "entrada" },
+  { id: "2", agent: "Mike Johnson", contact: "Jane Doe", phone: "+1 (555) 987-6543", duration: "2:11", status: "ringing", direction: "saída" },
+  { id: "3", agent: "Emily Davis", contact: "Robert Wilson", phone: "+1 (555) 456-7890", duration: "8:45", status: "hold", direction: "entrada" },
+  { id: "4", agent: "James Wilson", contact: "Desconhecido", phone: "+1 (555) 321-0987", duration: "0:45", status: "in-call", direction: "entrada" },
 ];
 
 export default function ActiveCallsPage() {
@@ -29,31 +28,31 @@ export default function ActiveCallsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Active Calls</h1>
-          <p className="text-sm text-muted-foreground">Monitor and manage all ongoing calls in real-time</p>
+          <h1 className="text-2xl font-bold">Chamadas Ativas</h1>
+          <p className="text-sm text-muted-foreground">Monitore e gerencie todas as chamadas em andamento em tempo real</p>
         </div>
         <Badge variant="secondary" className="text-sm gap-1.5">
           <span className="h-2 w-2 rounded-full status-on-call animate-pulse" />
-          {activeCalls.length} Active
+          {activeCalls.length} Ativas
         </Badge>
       </div>
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">Live Calls</CardTitle>
+          <CardTitle className="text-sm font-medium">Chamadas ao Vivo</CardTitle>
         </CardHeader>
         <CardContent>
           {activeCalls.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Agent</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Direction</TableHead>
-                  <TableHead>Duration</TableHead>
+                  <TableHead>Agente</TableHead>
+                  <TableHead>Contato</TableHead>
+                  <TableHead>Telefone</TableHead>
+                  <TableHead>Direção</TableHead>
+                  <TableHead>Duração</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Supervisor Actions</TableHead>
+                  <TableHead className="text-right">Ações do Supervisor</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -77,47 +76,47 @@ export default function ActiveCallsPage() {
                         <div className="flex items-center justify-end gap-1">
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Listen">
+                              <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Escutar">
                                 <Ear className="h-3.5 w-3.5" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Silent Monitor</TooltipContent>
+                            <TooltipContent>Monitoramento Silencioso</TooltipContent>
                           </Tooltip>
 
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Whisper">
+                              <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Sussurrar">
                                 <MessageSquare className="h-3.5 w-3.5" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Whisper to Agent</TooltipContent>
+                            <TooltipContent>Sussurrar ao Agente</TooltipContent>
                           </Tooltip>
 
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Barge">
+                              <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Intervir">
                                 <Phone className="h-3.5 w-3.5" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Barge In</TooltipContent>
+                            <TooltipContent>Intervir na Chamada</TooltipContent>
                           </Tooltip>
 
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Transfer">
+                              <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Transferir">
                                 <PhoneForwarded className="h-3.5 w-3.5" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Transfer</TooltipContent>
+                            <TooltipContent>Transferir</TooltipContent>
                           </Tooltip>
 
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" aria-label="End call">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" aria-label="Encerrar chamada">
                                 <PhoneOff className="h-3.5 w-3.5" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>End Call</TooltipContent>
+                            <TooltipContent>Encerrar Chamada</TooltipContent>
                           </Tooltip>
                         </div>
                       </TableCell>
@@ -129,8 +128,8 @@ export default function ActiveCallsPage() {
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
               <Phone className="h-12 w-12 mb-4 opacity-20" />
-              <p className="text-lg font-medium">No active calls</p>
-              <p className="text-sm">All lines are currently clear</p>
+              <p className="text-lg font-medium">Nenhuma chamada ativa</p>
+              <p className="text-sm">Todas as linhas estão livres no momento</p>
             </div>
           )}
         </CardContent>
