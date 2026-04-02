@@ -21,8 +21,8 @@ const dailyVolume = Array.from({ length: 30 }, (_, i) => ({
 }));
 
 const inboundOutbound = [
-  { name: "Inbound", value: 580, color: "hsl(217, 91%, 60%)" },
-  { name: "Outbound", value: 340, color: "hsl(142, 71%, 45%)" },
+  { name: "Entrada", value: 580, color: "hsl(217, 91%, 60%)" },
+  { name: "Saída", value: 340, color: "hsl(142, 71%, 45%)" },
 ];
 
 export default function ReportsPage() {
@@ -30,19 +30,19 @@ export default function ReportsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Reports & Analytics</h1>
-          <p className="text-sm text-muted-foreground">Comprehensive call center performance metrics</p>
+          <h1 className="text-2xl font-bold">Relatórios e Análises</h1>
+          <p className="text-sm text-muted-foreground">Métricas completas de desempenho do call center</p>
         </div>
         <Button variant="outline" className="gap-2">
           <Download className="h-4 w-4" />
-          Export Report
+          Exportar Relatório
         </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Call Volume (30 Days)</CardTitle>
+            <CardTitle className="text-sm font-medium">Volume de Chamadas (30 Dias)</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -59,7 +59,7 @@ export default function ReportsPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Inbound vs Outbound</CardTitle>
+            <CardTitle className="text-sm font-medium">Entrada vs Saída</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
             <ResponsiveContainer width="100%" height={180}>
@@ -84,7 +84,7 @@ export default function ReportsPage() {
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Agent Performance</CardTitle>
+          <CardTitle className="text-sm font-medium">Desempenho dos Agentes</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={250}>

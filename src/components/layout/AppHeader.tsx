@@ -9,9 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const statuses = [
-  { label: "Available", key: "available", class: "status-available" },
-  { label: "Busy", key: "busy", class: "status-on-call" },
-  { label: "Break", key: "break", class: "status-break" },
+  { label: "Disponível", key: "available", class: "status-available" },
+  { label: "Ocupado", key: "busy", class: "status-on-call" },
+  { label: "Pausa", key: "break", class: "status-break" },
   { label: "Offline", key: "offline", class: "status-offline" },
 ] as const;
 
@@ -32,17 +32,17 @@ export function AppHeader() {
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <PhoneCall className="h-4 w-4 text-status-on-call" />
           <Badge variant="secondary" className="text-xs font-mono">
-            0 live
+            0 ao vivo
           </Badge>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={toggleDark} aria-label="Toggle dark mode">
+        <Button variant="ghost" size="icon" onClick={toggleDark} aria-label="Alternar modo escuro">
           {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
 
-        <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
+        <Button variant="ghost" size="icon" className="relative" aria-label="Notificações">
           <Bell className="h-4 w-4" />
         </Button>
 
@@ -66,17 +66,17 @@ export function AppHeader() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full" aria-label="User menu">
+            <Button variant="ghost" size="icon" className="rounded-full" aria-label="Menu do usuário">
               <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold">
                 AD
               </div>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem>Perfil</DropdownMenuItem>
+            <DropdownMenuItem>Configurações</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Sign out</DropdownMenuItem>
+            <DropdownMenuItem>Sair</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

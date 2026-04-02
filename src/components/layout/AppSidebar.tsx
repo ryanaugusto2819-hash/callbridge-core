@@ -11,20 +11,20 @@ import {
 } from "@/components/ui/sidebar";
 
 const mainNav = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Dialer", url: "/dialer", icon: Phone },
-  { title: "Active Calls", url: "/active-calls", icon: PhoneCall },
-  { title: "Queue", url: "/queue", icon: ListOrdered },
-  { title: "Contacts", url: "/contacts", icon: Users },
-  { title: "History", url: "/history", icon: History },
+  { title: "Painel", url: "/", icon: LayoutDashboard },
+  { title: "Discador", url: "/dialer", icon: Phone },
+  { title: "Chamadas Ativas", url: "/active-calls", icon: PhoneCall },
+  { title: "Fila", url: "/queue", icon: ListOrdered },
+  { title: "Contatos", url: "/contacts", icon: Users },
+  { title: "Histórico", url: "/history", icon: History },
 ];
 
 const operationsNav = [
   { title: "Scripts", url: "/scripts", icon: FileText },
-  { title: "Campaigns", url: "/campaigns", icon: Megaphone },
-  { title: "Reports", url: "/reports", icon: BarChart3 },
-  { title: "Agents", url: "/agents", icon: UserCog },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Campanhas", url: "/campaigns", icon: Megaphone },
+  { title: "Relatórios", url: "/reports", icon: BarChart3 },
+  { title: "Agentes", url: "/agents", icon: UserCog },
+  { title: "Configurações", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -64,7 +64,7 @@ export function AppSidebar() {
 
         <SidebarGroup>
           <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-sidebar-foreground/50">
-            {!collapsed ? "Main" : ""}
+            {!collapsed ? "Principal" : ""}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>{renderItems(mainNav)}</SidebarMenu>
@@ -73,7 +73,7 @@ export function AppSidebar() {
 
         <SidebarGroup>
           <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-sidebar-foreground/50">
-            {!collapsed ? "Operations" : ""}
+            {!collapsed ? "Operações" : ""}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>{renderItems(operationsNav)}</SidebarMenu>
