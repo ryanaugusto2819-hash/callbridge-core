@@ -1,10 +1,12 @@
-import { useState, useCallback } from "react";
-import { Phone, Delete, Search, Mic, MicOff, Pause, Play, PhoneOff, Grid3X3, User } from "lucide-react";
+import { useState, useCallback, useEffect } from "react";
+import { Phone, Delete, Search, Mic, MicOff, Pause, Play, PhoneOff, Grid3X3, User, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const dialPad = [
   { digit: "1", letters: "" },
@@ -24,12 +26,40 @@ const dialPad = [
 export default function DialerPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isInCall, setIsInCall] = useState(false);
+  const [isCalling, setIsCalling] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isOnHold, setIsOnHold] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
   const [showDtmf, setShowDtmf] = useState(false);
   const [callNotes, setCallNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentCallSid, setCurrentCallSid] = useState<string | null>(null);
+  const [recentCalls, setRecentCalls] = useState<any[]>([]);
+
+  // Timer para duração da chamada
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (isInCall) {
+      interval = setInterval(() => {
+        setCallDuration((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isInCall]);
+
+  // Carregar chamadas recentes
+  useEffect(() => {
+    loadRecentCalls();
+  }, []);
+
+  const loadRecentCalls = async () => {
+    const { data } = await supabase
+      .from("call_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(10);
+    if (data) setRecentCalls(data);
+  };
 
   const handleDigit = useCallback((digit: string) => {
     if (isInCall) {
@@ -43,9 +73,42 @@ export default function DialerPage() {
     setPhoneNumber((prev) => prev.slice(0, -1));
   };
 
-  const handleCall = () => {
-    if (phoneNumber.length > 0) {
+  const handleCall = async () => {
+    if (!phoneNumber || phoneNumber.length < 8) {
+      toast.error("Digite um número de telefone válido");
+      return;
+    }
+
+    setIsCalling(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("twilio-make-call", {
+        body: { phone: phoneNumber },
+      });
+
+      if (error) {
+        console.error("Edge function error:", error);
+        toast.error(`Erro ao iniciar chamada: ${error.message}`);
+        setIsCalling(false);
+        return;
+      }
+
+      if (data?.error) {
+        toast.error(data.error);
+        setIsCalling(false);
+        return;
+      }
+
+      setCurrentCallSid(data.call_sid);
       setIsInCall(true);
+      setCallDuration(0);
+      toast.success("📞 Chamada iniciada com sucesso!");
+      loadRecentCalls();
+    } catch (err: any) {
+      console.error("Call error:", err);
+      toast.error(`Erro: ${err.message}`);
+    } finally {
+      setIsCalling(false);
     }
   };
 
@@ -53,8 +116,11 @@ export default function DialerPage() {
     setIsInCall(false);
     setIsMuted(false);
     setIsOnHold(false);
+    setCurrentCallSid(null);
     setCallDuration(0);
     setCallNotes("");
+    toast.info("Chamada encerrada");
+    loadRecentCalls();
   };
 
   const formatDuration = (seconds: number) => {
@@ -63,14 +129,35 @@ export default function DialerPage() {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
+  const statusLabel = (status: string) => {
+    const map: Record<string, string> = {
+      initiated: "Iniciada",
+      ringing: "Tocando",
+      "in-progress": "Em andamento",
+      completed: "Completada",
+      failed: "Falhou",
+      busy: "Ocupado",
+      "no-answer": "Sem resposta",
+      canceled: "Cancelada",
+    };
+    return map[status] || status;
+  };
+
+  const statusColor = (status: string) => {
+    if (status === "completed") return "bg-status-available/20 text-status-available";
+    if (status === "failed" || status === "busy" || status === "no-answer") return "bg-destructive/20 text-destructive";
+    return "bg-muted text-muted-foreground";
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Discador</h1>
-        <p className="text-sm text-muted-foreground">Fazer e receber chamadas</p>
+        <p className="text-sm text-muted-foreground">Fazer e receber chamadas via Twilio</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Teclado */}
         <Card className="lg:col-span-1">
           <CardContent className="p-6">
             <div className="relative mb-4">
@@ -89,7 +176,7 @@ export default function DialerPage() {
                   type="text"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="Digite o número"
+                  placeholder="+55 11 99999-0000"
                   className="text-2xl font-mono text-center bg-transparent border-none outline-none w-full text-foreground placeholder:text-muted-foreground"
                 />
                 {phoneNumber && (
@@ -117,12 +204,21 @@ export default function DialerPage() {
             {!isInCall ? (
               <Button
                 onClick={handleCall}
-                disabled={!phoneNumber}
+                disabled={!phoneNumber || isCalling}
                 className="w-full h-12 text-base gap-2 bg-status-available hover:bg-status-available/90 text-primary-foreground"
                 aria-label="Iniciar chamada"
               >
-                <Phone className="h-5 w-5" />
-                Ligar
+                {isCalling ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Chamando...
+                  </>
+                ) : (
+                  <>
+                    <Phone className="h-5 w-5" />
+                    Ligar
+                  </>
+                )}
               </Button>
             ) : (
               <Button
@@ -137,6 +233,7 @@ export default function DialerPage() {
           </CardContent>
         </Card>
 
+        {/* Painel de chamada ativa + Histórico */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -146,7 +243,7 @@ export default function DialerPage() {
                   Chamada Ativa
                 </>
               ) : (
-                "Nenhuma Chamada Ativa"
+                "Painel de Chamada"
               )}
             </CardTitle>
           </CardHeader>
@@ -160,7 +257,9 @@ export default function DialerPage() {
                     </div>
                     <div>
                       <p className="font-semibold">{phoneNumber}</p>
-                      <p className="text-sm text-muted-foreground">Contato Desconhecido</p>
+                      <p className="text-sm text-muted-foreground">
+                        {currentCallSid ? `SID: ${currentCallSid.slice(0, 20)}...` : "Contato Desconhecido"}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -229,10 +328,57 @@ export default function DialerPage() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                <Phone className="h-12 w-12 mb-4 opacity-20" />
-                <p className="text-lg font-medium">Nenhuma chamada ativa</p>
-                <p className="text-sm">Use o discador para iniciar uma chamada ou aguarde uma chamada recebida</p>
+              <div className="space-y-4">
+                {recentCalls.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                    <Phone className="h-12 w-12 mb-4 opacity-20" />
+                    <p className="text-lg font-medium">Nenhuma chamada recente</p>
+                    <p className="text-sm">Use o discador para iniciar uma chamada</p>
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="text-sm font-medium text-muted-foreground">Chamadas Recentes</h3>
+                    <div className="space-y-2">
+                      {recentCalls.map((call) => (
+                        <div
+                          key={call.id}
+                          className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-colors cursor-pointer"
+                          onClick={() => setPhoneNumber(call.phone_number)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Phone className="h-4 w-4 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">{call.phone_number}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(call.created_at).toLocaleString("pt-BR")}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={`text-xs ${statusColor(call.status)}`}>
+                              {statusLabel(call.status)}
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPhoneNumber(call.phone_number);
+                                handleCall();
+                              }}
+                              aria-label="Ligar novamente"
+                            >
+                              <Phone className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </CardContent>
