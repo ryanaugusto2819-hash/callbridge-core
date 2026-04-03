@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      call_logs: {
+        Row: {
+          agent_id: string | null
+          contact_id: string | null
+          created_at: string
+          direction: string
+          duration: number | null
+          id: string
+          notes: string | null
+          phone_number: string
+          recording_url: string | null
+          status: string
+          twilio_call_sid: string | null
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          direction?: string
+          duration?: number | null
+          id?: string
+          notes?: string | null
+          phone_number: string
+          recording_url?: string | null
+          status?: string
+          twilio_call_sid?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          direction?: string
+          duration?: number | null
+          id?: string
+          notes?: string | null
+          phone_number?: string
+          recording_url?: string | null
+          status?: string
+          twilio_call_sid?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       settings: {
         Row: {
           created_at: string
