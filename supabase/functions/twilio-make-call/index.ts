@@ -50,6 +50,12 @@ Deno.serve(async (req) => {
         To: phone,
         From: TWILIO_PHONE_NUMBER,
         Url: voiceUrl,
+        Record: 'true',
+        RecordingChannels: 'dual',
+        RecordingStatusCallback: `${SUPABASE_URL}/functions/v1/twilio-recording-status`,
+        RecordingStatusCallbackEvent: 'completed',
+        StatusCallback: `${SUPABASE_URL}/functions/v1/twilio-call-status`,
+        StatusCallbackEvent: 'initiated ringing answered completed',
       }),
     })
 
