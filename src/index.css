@@ -1,79 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 220 20% 10%;
+    --background: 250 18% 96%;
+    --foreground: 260 25% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 260 25% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
-    --primary: 217 91% 60%;
+    --popover-foreground: 260 25% 10%;
+    --primary: 271 76% 53%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 92%;
-    --secondary-foreground: 220 20% 20%;
-    --muted: 220 14% 95%;
-    --muted-foreground: 220 10% 46%;
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 100%;
+    --secondary: 260 18% 93%;
+    --secondary-foreground: 260 20% 20%;
+    --muted: 260 12% 90%;
+    --muted-foreground: 260 10% 50%;
+    --accent: 271 55% 93%;
+    --accent-foreground: 271 76% 40%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 217 91% 60%;
-    --radius: 0.5rem;
+    --border: 260 14% 88%;
+    --input: 260 14% 88%;
+    --ring: 271 76% 53%;
+    --radius: 0.75rem;
 
-    --sidebar-background: 222 47% 11%;
-    --sidebar-foreground: 213 31% 91%;
-    --sidebar-primary: 217 91% 60%;
+    /* Sidebar — deep dark purple */
+    --sidebar-background: 258 38% 7%;
+    --sidebar-foreground: 260 20% 60%;
+    --sidebar-primary: 271 76% 65%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 33% 17%;
-    --sidebar-accent-foreground: 213 31% 91%;
-    --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-accent: 258 30% 13%;
+    --sidebar-accent-foreground: 260 20% 90%;
+    --sidebar-border: 258 25% 14%;
+    --sidebar-ring: 271 76% 65%;
+    --sidebar-muted: 258 25% 18%;
 
-    /* Call center specific tokens */
+    /* Call center status tokens */
     --status-available: 142 71% 45%;
     --status-on-call: 0 72% 51%;
     --status-break: 38 92% 50%;
     --status-wrap-up: 262 83% 58%;
     --status-offline: 220 9% 46%;
 
+    /* Semantic colors */
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+    --info: 217 91% 60%;
+
+    /* Surfaces */
     --surface-elevated: 0 0% 100%;
-    --surface-sunken: 220 20% 96%;
+    --surface-sunken: 250 18% 94%;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px 0 hsl(260 20% 10% / 0.06);
+    --shadow-md: 0 4px 12px -2px hsl(260 20% 10% / 0.08), 0 2px 6px -2px hsl(260 20% 10% / 0.05);
+    --shadow-lg: 0 12px 24px -4px hsl(260 20% 10% / 0.1), 0 4px 8px -4px hsl(260 20% 10% / 0.06);
+    --shadow-glow-purple: 0 4px 20px rgba(124, 58, 237, 0.25);
+    --shadow-glow-green: 0 4px 20px rgba(16, 185, 129, 0.25);
+    --shadow-glow-blue: 0 4px 20px rgba(59, 130, 246, 0.25);
+    --shadow-glow-amber: 0 4px 20px rgba(245, 158, 11, 0.25);
+    --shadow-glow-red: 0 4px 20px rgba(239, 68, 68, 0.25);
   }
 
   .dark {
-    --background: 224 40% 8%;
-    --foreground: 213 31% 91%;
-    --card: 222 40% 11%;
-    --card-foreground: 213 31% 91%;
-    --popover: 222 40% 13%;
-    --popover-foreground: 213 31% 91%;
-    --primary: 217 91% 60%;
+    --background: 258 35% 5%;
+    --foreground: 0 0% 92%;
+    --card: 258 28% 7%;
+    --card-foreground: 0 0% 92%;
+    --popover: 258 28% 7%;
+    --popover-foreground: 0 0% 92%;
+    --primary: 271 76% 62%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 213 31% 91%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 55%;
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
+    --secondary: 258 25% 12%;
+    --secondary-foreground: 0 0% 85%;
+    --muted: 258 22% 11%;
+    --muted-foreground: 260 12% 52%;
+    --accent: 271 40% 16%;
+    --accent-foreground: 271 76% 72%;
+    --destructive: 0 62% 40%;
     --destructive-foreground: 0 0% 100%;
-    --border: 217 33% 17%;
-    --input: 217 33% 20%;
-    --ring: 217 91% 60%;
+    --border: 258 22% 14%;
+    --input: 258 22% 14%;
+    --ring: 271 76% 62%;
 
-    --sidebar-background: 224 50% 6%;
-    --sidebar-foreground: 213 31% 75%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-background: 258 40% 4%;
+    --sidebar-foreground: 260 15% 58%;
+    --sidebar-primary: 271 76% 62%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 33% 12%;
-    --sidebar-accent-foreground: 213 31% 91%;
-    --sidebar-border: 217 33% 12%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-accent: 258 30% 10%;
+    --sidebar-accent-foreground: 260 18% 88%;
+    --sidebar-border: 258 28% 12%;
+    --sidebar-ring: 271 76% 62%;
+    --sidebar-muted: 258 25% 14%;
 
     --status-available: 142 71% 45%;
     --status-on-call: 0 72% 51%;
@@ -81,86 +102,170 @@
     --status-wrap-up: 262 83% 58%;
     --status-offline: 220 9% 46%;
 
-    --surface-elevated: 222 40% 13%;
-    --surface-sunken: 224 40% 6%;
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+    --info: 217 91% 60%;
+
+    --surface-elevated: 258 28% 9%;
+    --surface-sunken: 258 35% 4%;
+
+    --shadow-md: 0 4px 12px -2px hsl(0 0% 0% / 0.3);
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "cv11", "salt";
+  }
+}
+
+@layer components {
+  /* Card com barra de destaque no topo */
+  .cfo-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .cfo-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+  .cfo-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 1; }
+  .dark .cfo-card { background: hsl(var(--card)); }
+
+  .accent-purple::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+  .accent-green::before  { background: linear-gradient(90deg, #059669, #34d399); }
+  .accent-blue::before   { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+  .accent-amber::before  { background: linear-gradient(90deg, #d97706, #fcd34d); }
+  .accent-red::before    { background: linear-gradient(90deg, #dc2626, #f87171); }
+  .accent-teal::before   { background: linear-gradient(90deg, #0d9488, #2dd4bf); }
+
+  /* Icon boxes */
+  .icon-box {
+    display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  .cfo-card:hover .icon-box { transform: scale(1.05); }
+
+  .icon-box-purple   { background: linear-gradient(135deg, #7c3aed, #8b5cf6); box-shadow: var(--shadow-glow-purple); color: white; }
+  .icon-box-green    { background: linear-gradient(135deg, #059669, #10b981); box-shadow: var(--shadow-glow-green);  color: white; }
+  .icon-box-blue     { background: linear-gradient(135deg, #2563eb, #3b82f6); box-shadow: var(--shadow-glow-blue);   color: white; }
+  .icon-box-amber    { background: linear-gradient(135deg, #d97706, #f59e0b); box-shadow: var(--shadow-glow-amber);  color: white; }
+  .icon-box-red      { background: linear-gradient(135deg, #dc2626, #ef4444); box-shadow: var(--shadow-glow-red);    color: white; }
+  .icon-box-teal     { background: linear-gradient(135deg, #0d9488, #14b8a6); box-shadow: 0 4px 20px rgba(20,184,166,0.25); color: white; }
+
+  /* Gradients */
+  .liberty-gradient       { background: linear-gradient(135deg, #0F0A14 0%, #1A0D2E 40%, #130D1A 100%); }
+  .liberty-gradient-light { background: linear-gradient(135deg, hsl(271 76% 53% / 0.04) 0%, hsl(250 18% 96%) 100%); }
+
+  /* Glass card */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: var(--shadow-md);
+    border-radius: 16px;
+  }
+  .dark .glass-card { background: rgba(20, 14, 35, 0.85); border-color: rgba(124, 58, 237, 0.15); }
+
+  /* Glow */
+  .glow-primary { box-shadow: 0 0 0 1px hsl(var(--primary) / 0.3), 0 4px 20px hsl(var(--primary) / 0.2); }
+  .glow-purple  { box-shadow: var(--shadow-glow-purple); }
+  .glow-green   { box-shadow: var(--shadow-glow-green); }
+  .glow-blue    { box-shadow: var(--shadow-glow-blue); }
+  .glow-amber   { box-shadow: var(--shadow-glow-amber); }
+
+  /* Status badges */
+  .badge-success { background: rgba(5,150,105,0.12);  color: #059669; border: 1px solid rgba(5,150,105,0.2); }
+  .badge-warning { background: rgba(217,119,6,0.12);  color: #d97706; border: 1px solid rgba(217,119,6,0.2); }
+  .badge-danger  { background: rgba(220,38,38,0.12);  color: #dc2626; border: 1px solid rgba(220,38,38,0.2); }
+  .badge-info    { background: rgba(37,99,235,0.12);  color: #2563eb; border: 1px solid rgba(37,99,235,0.2); }
+  .badge-purple  { background: rgba(124,58,237,0.12); color: #7c3aed; border: 1px solid rgba(124,58,237,0.2); }
+  .badge-neutral { background: rgba(100,100,120,0.10); color: hsl(var(--muted-foreground)); border: 1px solid hsl(var(--border)); }
+
+  /* Sidebar active indicator */
+  .sidebar-active-indicator {
+    position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 20px; border-radius: 0 3px 3px 0;
+    background: linear-gradient(180deg, #7C3AED, #A78BFA);
   }
 }
 
 @layer utilities {
-  .status-available {
-    @apply bg-[hsl(var(--status-available))];
+  /* Call center status tokens */
+  .status-available  { @apply bg-[hsl(var(--status-available))]; }
+  .status-on-call    { @apply bg-[hsl(var(--status-on-call))]; }
+  .status-break      { @apply bg-[hsl(var(--status-break))]; }
+  .status-wrap-up    { @apply bg-[hsl(var(--status-wrap-up))]; }
+  .status-offline    { @apply bg-[hsl(var(--status-offline))]; }
+  .text-status-available { color: hsl(var(--status-available)); }
+  .text-status-on-call   { color: hsl(var(--status-on-call)); }
+  .text-status-break     { color: hsl(var(--status-break)); }
+  .text-status-offline   { color: hsl(var(--status-offline)); }
+
+  /* Surfaces */
+  .surface-elevated { background-color: hsl(var(--surface-elevated)); }
+  .surface-sunken   { background-color: hsl(var(--surface-sunken)); }
+
+  /* Scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.25) transparent;
   }
-  .status-on-call {
-    @apply bg-[hsl(var(--status-on-call))];
+  .scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background-color: hsl(var(--muted-foreground) / 0.25); border-radius: 10px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background-color: hsl(var(--muted-foreground) / 0.4); }
+
+  /* Text effects */
+  .text-gradient-purple {
+    background: linear-gradient(135deg, #7c3aed, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-  .status-break {
-    @apply bg-[hsl(var(--status-break))];
+  .shimmer-text {
+    background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 25%, #c4b5fd 50%, #a78bfa 75%, #7c3aed 100%);
+    background-size: 400% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
   }
-  .status-wrap-up {
-    @apply bg-[hsl(var(--status-wrap-up))];
+  .dot-grid {
+    background-image: radial-gradient(circle, rgba(167, 139, 250, 0.35) 1px, transparent 1px);
+    background-size: 28px 28px;
   }
-  .status-offline {
-    @apply bg-[hsl(var(--status-offline))];
-  }
-  .text-status-available {
-    color: hsl(var(--status-available));
-  }
-  .text-status-on-call {
-    color: hsl(var(--status-on-call));
-  }
-  .text-status-break {
-    color: hsl(var(--status-break));
-  }
-  .text-status-offline {
-    color: hsl(var(--status-offline));
-  }
-  .surface-elevated {
-    background-color: hsl(var(--surface-elevated));
-  }
-  .surface-sunken {
-    background-color: hsl(var(--surface-sunken));
+  .nav-section-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: hsl(260 15% 35%);
+    padding: 0.75rem 0.75rem 0.25rem;
   }
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.3);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.5);
-}
+/* Scrollbar global */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(var(--muted-foreground) / 0.25); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.4); }
 
-/* Keypad button animation */
-.keypad-btn {
-  transition: all 0.1s ease;
-}
-.keypad-btn:active {
-  transform: scale(0.95);
-}
+/* Keypad */
+.keypad-btn { transition: all 0.1s ease; }
+.keypad-btn:active { transform: scale(0.95); }
 
-/* Pulse animation for ringing */
+/* Pulse ring para chamadas */
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 hsl(var(--status-available) / 0.4); }
-  70% { box-shadow: 0 0 0 10px hsl(var(--status-available) / 0); }
+  0%   { box-shadow: 0 0 0 0 hsl(var(--status-available) / 0.4); }
+  70%  { box-shadow: 0 0 0 10px hsl(var(--status-available) / 0); }
   100% { box-shadow: 0 0 0 0 hsl(var(--status-available) / 0); }
 }
-.animate-pulse-ring {
-  animation: pulse-ring 1.5s infinite;
-}
+.animate-pulse-ring { animation: pulse-ring 1.5s infinite; }
