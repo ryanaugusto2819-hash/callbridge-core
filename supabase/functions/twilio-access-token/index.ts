@@ -35,13 +35,13 @@ Deno.serve(async (req) => {
 
   try {
     const TWILIO_ACCOUNT_SID = Deno.env.get('TWILIO_ACCOUNT_SID')
-    const TWILIO_API_KEY = Deno.env.get('TWILIO_API_KEY')
-    const TWILIO_API_SECRET = Deno.env.get('TWILIO_API_SECRET')
+    const TWILIO_API_KEY = Deno.env.get('TWILIO_API_KEY') || TWILIO_ACCOUNT_SID
+    const TWILIO_API_SECRET = Deno.env.get('TWILIO_API_SECRET') || Deno.env.get('TWILIO_AUTH_TOKEN')
     const TWILIO_TWIML_APP_SID = Deno.env.get('TWILIO_TWIML_APP_SID')
 
     if (!TWILIO_ACCOUNT_SID || !TWILIO_API_KEY || !TWILIO_API_SECRET || !TWILIO_TWIML_APP_SID) {
       return new Response(
-        JSON.stringify({ error: 'Configure TWILIO_API_KEY, TWILIO_API_SECRET e TWILIO_TWIML_APP_SID nos secrets do Supabase' }),
+        JSON.stringify({ error: 'Configure TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN e TWILIO_TWIML_APP_SID nos secrets' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -72,9 +72,10 @@ Deno.serve(async (req) => {
       JSON.stringify({ token, identity }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
-  } catch (error) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error)
     return new Response(
-      JSON.stringify({ error: `Erro interno: ${error.message}` }),
+      JSON.stringify({ error: `Erro interno: ${msg}` }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
