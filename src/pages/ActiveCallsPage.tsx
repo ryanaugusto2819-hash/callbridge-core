@@ -16,12 +16,7 @@ const statusBadgeMap: Record<string, { label: string; variant: "default" | "seco
   "wrap-up": { label: "Pós-atendimento", variant: "secondary" },
 };
 
-const activeCalls = [
-  { id: "1", agent: "Sarah Chen", contact: "John Smith", phone: "+1 (555) 123-4567", duration: "5:23", status: "in-call", direction: "entrada" },
-  { id: "2", agent: "Mike Johnson", contact: "Jane Doe", phone: "+1 (555) 987-6543", duration: "2:11", status: "ringing", direction: "saída" },
-  { id: "3", agent: "Emily Davis", contact: "Robert Wilson", phone: "+1 (555) 456-7890", duration: "8:45", status: "hold", direction: "entrada" },
-  { id: "4", agent: "James Wilson", contact: "Desconhecido", phone: "+1 (555) 321-0987", duration: "0:45", status: "in-call", direction: "entrada" },
-];
+const activeCalls: never[] = [];
 
 export default function ActiveCallsPage() {
   return (
@@ -33,7 +28,7 @@ export default function ActiveCallsPage() {
         </div>
         <Badge variant="secondary" className="text-sm gap-1.5">
           <span className="h-2 w-2 rounded-full status-on-call animate-pulse" />
-          {activeCalls.length} Ativas
+          {activeCalls.length > 0 ? `${activeCalls.length} Ativas` : "Nenhuma ativa"}
         </Badge>
       </div>
 
