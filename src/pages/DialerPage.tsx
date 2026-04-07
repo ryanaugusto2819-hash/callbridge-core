@@ -73,21 +73,30 @@ export default function DialerPage() {
 
       if (error || !data?.token) {
         console.warn("Twilio Device não disponível:", error?.message || "Token ausente");
+        setDeviceReady(false);
         return;
       }
 
       const device = new Device(data.token, { logLevel: "warn" });
 
-      device.on("ready", () => {
+      device.on("registering", () => {
+        setDeviceReady(false);
+      });
+
+      device.on("registered", () => {
         setDeviceReady(true);
         toast.success("Dispositivo de voz pronto");
       });
 
+      device.on("unregistered", () => {
+        setDeviceReady(false);
+      });
+
       device.on("error", (err: Error) => {
+        setDeviceReady(false);
         toast.error(`Erro Twilio: ${err.message}`);
       });
 
-      // Chamada entrante
       device.on("incoming", (call: Call) => {
         setIncomingCall(call);
         toast.info(`Chamada recebida de ${call.parameters.From || "número desconhecido"}`, {
@@ -96,7 +105,9 @@ export default function DialerPage() {
       });
 
       deviceRef.current = device;
+      await device.register();
     } catch (err: any) {
+      setDeviceReady(false);
       console.warn("Twilio Device não inicializado:", err.message);
     }
   };
