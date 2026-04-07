@@ -8,11 +8,12 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // Chamada recebida no número Twilio → conecta direto ao agente no browser
   const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Say language="pt-BR" voice="Polly.Camila">Olá, esta é uma ligação automática do nosso sistema. Por favor, aguarde enquanto conectamos você a um atendente.</Say>
-  <Pause length="2"/>
-  <Say language="pt-BR" voice="Polly.Camila">Obrigado por aguardar. Um momento, por favor.</Say>
+  <Dial>
+    <Client>agent</Client>
+  </Dial>
 </Response>`
 
   return new Response(twiml, {

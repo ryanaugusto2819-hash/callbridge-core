@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
-import { Phone, Delete, Search, Mic, MicOff, Pause, Play, PhoneOff, Grid3X3, User, Loader2 } from "lucide-react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Phone, Delete, Search, Mic, MicOff, Pause, Play, PhoneOff, Grid3X3, User, Loader2, PhoneIncoming } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Device, Call } from "@twilio/voice-sdk";
 
 const dialPad = [
   { digit: "1", letters: "" },
@@ -35,8 +36,13 @@ export default function DialerPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentCallSid, setCurrentCallSid] = useState<string | null>(null);
   const [recentCalls, setRecentCalls] = useState<any[]>([]);
+  const [deviceReady, setDeviceReady] = useState(false);
+  const [incomingCall, setIncomingCall] = useState<Call | null>(null);
 
-  // Timer para duração da chamada
+  const deviceRef = useRef<Device | null>(null);
+  const callRef = useRef<Call | null>(null);
+
+  // Timer de duração da chamada
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (isInCall) {
@@ -47,10 +53,78 @@ export default function DialerPage() {
     return () => clearInterval(interval);
   }, [isInCall]);
 
-  // Carregar chamadas recentes
+  // Inicializar Twilio Device ao montar
+  useEffect(() => {
+    initDevice();
+    return () => {
+      deviceRef.current?.destroy();
+    };
+  }, []);
+
   useEffect(() => {
     loadRecentCalls();
   }, []);
+
+  const initDevice = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("twilio-access-token", {
+        body: { identity: "agent" },
+      });
+
+      if (error || !data?.token) {
+        console.warn("Twilio Device não disponível:", error?.message || "Token ausente");
+        return;
+      }
+
+      const device = new Device(data.token, { logLevel: "warn" });
+
+      device.on("ready", () => {
+        setDeviceReady(true);
+        toast.success("Dispositivo de voz pronto");
+      });
+
+      device.on("error", (err: Error) => {
+        toast.error(`Erro Twilio: ${err.message}`);
+      });
+
+      // Chamada entrante
+      device.on("incoming", (call: Call) => {
+        setIncomingCall(call);
+        toast.info(`Chamada recebida de ${call.parameters.From || "número desconhecido"}`, {
+          duration: 30000,
+        });
+      });
+
+      deviceRef.current = device;
+    } catch (err: any) {
+      console.warn("Twilio Device não inicializado:", err.message);
+    }
+  };
+
+  const setupCallListeners = (call: Call) => {
+    call.on("accept", () => {
+      setIsInCall(true);
+      setIsCalling(false);
+      setCurrentCallSid(call.parameters.CallSid || null);
+    });
+
+    call.on("disconnect", () => {
+      setIsInCall(false);
+      setIsMuted(false);
+      setIsOnHold(false);
+      setCurrentCallSid(null);
+      setCallDuration(0);
+      setCallNotes("");
+      callRef.current = null;
+      setIncomingCall(null);
+      loadRecentCalls();
+    });
+
+    call.on("error", (err: Error) => {
+      toast.error(`Erro na chamada: ${err.message}`);
+      setIsCalling(false);
+    });
+  };
 
   const loadRecentCalls = async () => {
     const { data } = await supabase
@@ -62,8 +136,8 @@ export default function DialerPage() {
   };
 
   const handleDigit = useCallback((digit: string) => {
-    if (isInCall) {
-      console.log("DTMF:", digit);
+    if (isInCall && callRef.current) {
+      callRef.current.sendDigits(digit);
     } else {
       setPhoneNumber((prev) => prev + digit);
     }
@@ -79,48 +153,65 @@ export default function DialerPage() {
       return;
     }
 
+    if (!deviceRef.current || !deviceReady) {
+      toast.error("Dispositivo de voz não pronto. Verifique as configurações do Twilio.");
+      return;
+    }
+
     setIsCalling(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("twilio-make-call", {
-        body: { phone: phoneNumber },
+      const call = await deviceRef.current.connect({
+        params: { To: phoneNumber },
       });
 
-      if (error) {
-        console.error("Edge function error:", error);
-        toast.error(`Erro ao iniciar chamada: ${error.message}`);
-        setIsCalling(false);
-        return;
-      }
-
-      if (data?.error) {
-        toast.error(data.error);
-        setIsCalling(false);
-        return;
-      }
-
-      setCurrentCallSid(data.call_sid);
-      setIsInCall(true);
-      setCallDuration(0);
-      toast.success("📞 Chamada iniciada com sucesso!");
+      callRef.current = call;
+      setupCallListeners(call);
+      toast.success("📞 Chamando...");
       loadRecentCalls();
     } catch (err: any) {
-      console.error("Call error:", err);
-      toast.error(`Erro: ${err.message}`);
-    } finally {
+      toast.error(`Erro ao ligar: ${err.message}`);
       setIsCalling(false);
     }
   };
 
+  const handleAcceptIncoming = () => {
+    if (!incomingCall) return;
+    incomingCall.accept();
+    callRef.current = incomingCall;
+    setPhoneNumber(incomingCall.parameters.From || "Desconhecido");
+    setIsInCall(true);
+    setIncomingCall(null);
+    setupCallListeners(incomingCall);
+    toast.success("Chamada aceita");
+  };
+
+  const handleRejectIncoming = () => {
+    incomingCall?.reject();
+    setIncomingCall(null);
+    toast.info("Chamada rejeitada");
+  };
+
   const handleHangup = () => {
+    callRef.current?.disconnect();
+    deviceRef.current?.disconnectAll();
     setIsInCall(false);
     setIsMuted(false);
     setIsOnHold(false);
     setCurrentCallSid(null);
     setCallDuration(0);
     setCallNotes("");
+    callRef.current = null;
     toast.info("Chamada encerrada");
     loadRecentCalls();
+  };
+
+  const handleMute = () => {
+    if (callRef.current) {
+      const newMuted = !isMuted;
+      callRef.current.mute(newMuted);
+      setIsMuted(newMuted);
+    }
   };
 
   const formatDuration = (seconds: number) => {
@@ -153,8 +244,37 @@ export default function DialerPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Discador</h1>
-        <p className="text-sm text-muted-foreground">Fazer e receber chamadas via Twilio</p>
+        <p className="text-sm text-muted-foreground">
+          Fazer e receber chamadas via Twilio
+          {deviceReady && <span className="ml-2 text-green-500">● Dispositivo pronto</span>}
+          {!deviceReady && <span className="ml-2 text-yellow-500">● Dispositivo não conectado</span>}
+        </p>
       </div>
+
+      {/* Chamada entrante */}
+      {incomingCall && (
+        <Card className="border-2 border-green-500 animate-pulse">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <PhoneIncoming className="h-6 w-6 text-green-500" />
+                <div>
+                  <p className="font-semibold">Chamada Entrante</p>
+                  <p className="text-sm text-muted-foreground">{incomingCall.parameters.From || "Número desconhecido"}</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleAcceptIncoming} className="bg-green-500 hover:bg-green-600 gap-2">
+                  <Phone className="h-4 w-4" /> Atender
+                </Button>
+                <Button onClick={handleRejectIncoming} variant="destructive" className="gap-2">
+                  <PhoneOff className="h-4 w-4" /> Rejeitar
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Teclado */}
@@ -204,7 +324,7 @@ export default function DialerPage() {
             {!isInCall ? (
               <Button
                 onClick={handleCall}
-                disabled={!phoneNumber || isCalling}
+                disabled={!phoneNumber || isCalling || !deviceReady}
                 className="w-full h-12 text-base gap-2 bg-status-available hover:bg-status-available/90 text-primary-foreground"
                 aria-label="Iniciar chamada"
               >
@@ -272,7 +392,7 @@ export default function DialerPage() {
                   <Button
                     variant={isMuted ? "destructive" : "secondary"}
                     size="lg"
-                    onClick={() => setIsMuted(!isMuted)}
+                    onClick={handleMute}
                     className="gap-2"
                     aria-label={isMuted ? "Desmutar" : "Mutar"}
                   >
