@@ -196,10 +196,34 @@ export default function CampaignsPage() {
       const call = await deviceRef.current.connect({ params: { To: contact.phone } });
       callRef.current = call;
 
-      call.on("accept", () => toast.info(`Discando para ${contact.name || contact.phone}...`));
+      let logId: string | null = null;
+      let callStartTime = Date.now();
+
+      call.on("accept", () => {
+        callStartTime = Date.now();
+        toast.info(`Discando para ${contact.name || contact.phone}...`);
+        supabase.from("call_logs").insert({
+          phone_number: contact.phone,
+          direction: "outbound",
+          status: "in-progress",
+          twilio_call_sid: call.parameters?.CallSid || null,
+        }).select("id").single().then(({ data }) => {
+          if (data) logId = data.id;
+        });
+      });
 
       call.on("disconnect", async () => {
         const finalStatus = call.status() === "closed" ? "answered" : "no-answer";
+        const duration = Math.round((Date.now() - callStartTime) / 1000);
+
+        if (logId) {
+          await supabase.from("call_logs").update({
+            status: finalStatus === "answered" ? "completed" : finalStatus,
+            duration,
+          }).eq("id", logId);
+          logId = null;
+        }
+
         await supabase.from("campaign_contacts").update({ status: finalStatus }).eq("id", contact.id);
         await supabase.from("campaigns").update({
           called: (activeCampaign.called || 0) + 1,
@@ -216,6 +240,10 @@ export default function CampaignsPage() {
       });
 
       call.on("error", async () => {
+        if (logId) {
+          await supabase.from("call_logs").update({ status: "failed" }).eq("id", logId);
+          logId = null;
+        }
         await supabase.from("campaign_contacts").update({ status: "failed" }).eq("id", contact.id);
         setContacts((prev) => prev.map((c) => c.id === contact.id ? { ...c, status: "failed" } : c));
         callRef.current = null; setCurrentContact(null);

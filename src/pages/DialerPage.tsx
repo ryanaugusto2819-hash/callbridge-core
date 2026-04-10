@@ -41,13 +41,20 @@ export default function DialerPage() {
 
   const deviceRef = useRef<Device | null>(null);
   const callRef = useRef<Call | null>(null);
+  const callLogIdRef = useRef<string | null>(null);
+  const callDurationRef = useRef(0);
+  const callNotesRef = useRef("");
 
   // Timer de duração da chamada
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (isInCall) {
       interval = setInterval(() => {
-        setCallDuration((prev) => prev + 1);
+        setCallDuration((prev) => {
+          const next = prev + 1;
+          callDurationRef.current = next;
+          return next;
+        });
       }, 1000);
     }
     return () => clearInterval(interval);
@@ -112,14 +119,34 @@ export default function DialerPage() {
     }
   };
 
-  const setupCallListeners = (call: Call) => {
+  const setupCallListeners = (call: Call, phone: string, direction: "outbound" | "inbound" = "outbound") => {
     call.on("accept", () => {
       setIsInCall(true);
       setIsCalling(false);
-      setCurrentCallSid(call.parameters.CallSid || null);
+      callDurationRef.current = 0;
+      const sid = call.parameters.CallSid || null;
+      setCurrentCallSid(sid);
+      supabase.from("call_logs").insert({
+        phone_number: phone,
+        direction,
+        status: "in-progress",
+        twilio_call_sid: sid,
+      }).select("id").single().then(({ data }) => {
+        if (data) callLogIdRef.current = data.id;
+      });
     });
 
     call.on("disconnect", () => {
+      if (callLogIdRef.current) {
+        supabase.from("call_logs").update({
+          status: "completed",
+          duration: callDurationRef.current,
+          notes: callNotesRef.current || null,
+        }).eq("id", callLogIdRef.current);
+        callLogIdRef.current = null;
+      }
+      callDurationRef.current = 0;
+      callNotesRef.current = "";
       setIsInCall(false);
       setIsMuted(false);
       setIsOnHold(false);
@@ -177,7 +204,7 @@ export default function DialerPage() {
       });
 
       callRef.current = call;
-      setupCallListeners(call);
+      setupCallListeners(call, phoneNumber, "outbound");
       toast.success("📞 Chamando...");
       loadRecentCalls();
     } catch (err: any) {
@@ -188,12 +215,24 @@ export default function DialerPage() {
 
   const handleAcceptIncoming = () => {
     if (!incomingCall) return;
+    const fromNumber = incomingCall.parameters.From || "Desconhecido";
     incomingCall.accept();
     callRef.current = incomingCall;
-    setPhoneNumber(incomingCall.parameters.From || "Desconhecido");
+    setPhoneNumber(fromNumber);
     setIsInCall(true);
     setIncomingCall(null);
-    setupCallListeners(incomingCall);
+    setupCallListeners(incomingCall, fromNumber, "inbound");
+    // Para chamadas inbound o evento "accept" já disparou antes dos listeners,
+    // então inserimos o log diretamente aqui.
+    callDurationRef.current = 0;
+    supabase.from("call_logs").insert({
+      phone_number: fromNumber,
+      direction: "inbound",
+      status: "in-progress",
+      twilio_call_sid: incomingCall.parameters.CallSid || null,
+    }).select("id").single().then(({ data }) => {
+      if (data) callLogIdRef.current = data.id;
+    });
     toast.success("Chamada aceita");
   };
 
@@ -453,7 +492,7 @@ export default function DialerPage() {
                   <Textarea
                     placeholder="Adicionar notas sobre esta chamada..."
                     value={callNotes}
-                    onChange={(e) => setCallNotes(e.target.value)}
+                    onChange={(e) => { setCallNotes(e.target.value); callNotesRef.current = e.target.value; }}
                     rows={4}
                   />
                 </div>
