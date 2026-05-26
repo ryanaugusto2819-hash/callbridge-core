@@ -64,7 +64,7 @@ export default function ScriptsPage() {
       .select("*")
       .order("created_at", { ascending: false });
     if (error) toast.error("Erro ao carregar scripts");
-    else setScripts((data as Script[]) || []);
+    else setScripts(((data || []) as unknown as Script[]));
     setLoading(false);
   };
 
