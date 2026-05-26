@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Phone, Delete, Search, Mic, MicOff, Pause, Play, PhoneOff, Grid3X3, User, Loader2, PhoneIncoming, Volume2, FileText } from "lucide-react";
+import { Phone, Delete, Search, Mic, MicOff, Pause, Play, PhoneOff, Grid3X3, User, Loader2, PhoneIncoming, Volume2, FileText, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,13 @@ type Script = {
   content: string;
   response_options: ResponseOption[];
   is_active: boolean;
+};
+
+type AudioClip = {
+  id: string;
+  title: string;
+  audio_url: string;
+  shortcut_key: string | null;
 };
 
 const dialPad = [
@@ -56,6 +63,9 @@ export default function DialerPage() {
   const [activeScript, setActiveScript] = useState<Script | null>(null);
   const [scriptTab, setScriptTab] = useState("todos");
 
+  const [audioClips, setAudioClips] = useState<AudioClip[]>([]);
+  const [playingClipId, setPlayingClipId] = useState<string | null>(null);
+
   const deviceRef = useRef<Device | null>(null);
   const callRef = useRef<Call | null>(null);
   const callLogIdRef = useRef<string | null>(null);
@@ -63,8 +73,25 @@ export default function DialerPage() {
   const callNotesRef = useRef("");
 
   useEffect(() => {
-    if (isInCall) loadScripts();
+    if (isInCall) { loadScripts(); loadAudioClips(); }
   }, [isInCall]);
+
+  // Atalhos de teclado para tocar áudios durante a chamada
+  useEffect(() => {
+    if (!isInCall) return;
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
+      const clip = audioClips.find((c) => c.shortcut_key && c.shortcut_key.toLowerCase() === e.key.toLowerCase());
+      if (clip) {
+        e.preventDefault();
+        playAudioClip(clip);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInCall, audioClips, currentCallSid]);
 
   // Timer de duração da chamada
   useEffect(() => {
@@ -192,8 +219,37 @@ export default function DialerPage() {
       .select("*")
       .eq("is_active", true)
       .order("category");
-    if (data) setScripts(data as Script[]);
+    if (data) setScripts(data as unknown as Script[]);
     setLoadingScripts(false);
+  };
+
+  const loadAudioClips = async () => {
+    const { data } = await supabase
+      .from("audio_clips")
+      .select("id, title, audio_url, shortcut_key")
+      .eq("is_active", true)
+      .order("display_order")
+      .order("created_at");
+    if (data) setAudioClips(data as AudioClip[]);
+  };
+
+  const playAudioClip = async (clip: AudioClip) => {
+    if (!currentCallSid) {
+      toast.error("Nenhuma chamada ativa para reproduzir o áudio");
+      return;
+    }
+    setPlayingClipId(clip.id);
+    try {
+      const { error } = await supabase.functions.invoke("twilio-play-audio", {
+        body: { callSid: currentCallSid, audioUrl: clip.audio_url },
+      });
+      if (error) throw error;
+      toast.success(`▶ Tocando: ${clip.title}`);
+    } catch (e) {
+      toast.error(`Erro ao tocar áudio: ${(e as Error).message}`);
+    } finally {
+      setTimeout(() => setPlayingClipId(null), 1500);
+    }
   };
 
   const playScript = (script: Script) => {
@@ -533,6 +589,46 @@ export default function DialerPage() {
                     ))}
                   </div>
                 )}
+
+                {/* Soundboard: áudios pré-gravados */}
+                <div className="border rounded-lg p-3 bg-secondary/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Music className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-sm">Áudios Pré-gravados</span>
+                    <span className="text-xs text-muted-foreground ml-auto">
+                      Clique ou use a tecla de atalho
+                    </span>
+                  </div>
+                  {audioClips.length === 0 ? (
+                    <p className="text-xs text-muted-foreground text-center py-4">
+                      Nenhum áudio cadastrado. Vá em "Áudios" no menu para adicionar.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                      {audioClips.map((clip) => (
+                        <button
+                          key={clip.id}
+                          onClick={() => playAudioClip(clip)}
+                          disabled={playingClipId === clip.id}
+                          className="relative flex flex-col items-center justify-center gap-1 p-3 rounded-md bg-background hover:bg-primary/10 border transition-colors disabled:opacity-60"
+                          aria-label={`Tocar áudio ${clip.title}`}
+                        >
+                          {clip.shortcut_key && (
+                            <span className="absolute top-1 right-1 text-[10px] bg-primary/20 text-primary px-1.5 rounded font-mono">
+                              {clip.shortcut_key}
+                            </span>
+                          )}
+                          {playingClipId === clip.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                          ) : (
+                            <Volume2 className="h-4 w-4 text-primary" />
+                          )}
+                          <span className="text-xs font-medium text-center line-clamp-2">{clip.title}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                   {/* Notas */}

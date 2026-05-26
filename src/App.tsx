@@ -15,6 +15,7 @@ import CampaignsPage from "./pages/CampaignsPage";
 import ReportsPage from "./pages/ReportsPage";
 import AgentsPage from "./pages/AgentsPage";
 import SettingsPage from "./pages/SettingsPage";
+import AudioClipsPage from "./pages/AudioClipsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/campaigns" element={<CampaignsPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/agents" element={<AgentsPage />} />
+            <Route path="/audios" element={<AudioClipsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
