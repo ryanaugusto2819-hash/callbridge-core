@@ -16,7 +16,13 @@ Deno.serve(async (req) => {
 
   // Twilio envia os parâmetros como form-encoded
   const body = await req.formData().catch(() => new FormData())
-  const to = (body.get('To') as string) || ''
+  const rawTo = (body.get('To') as string) || ''
+  // Normaliza para E.164 — Twilio exige '+' para discagem internacional
+  const to = rawTo
+    ? (rawTo.startsWith('+') ? rawTo : `+${rawTo.replace(/\D/g, '')}`)
+    : ''
+
+  console.log('twilio-app-voice incoming:', { rawTo, to, from: TWILIO_PHONE_NUMBER })
 
   let twiml: string
 

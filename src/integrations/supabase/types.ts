@@ -61,7 +61,6 @@ export type Database = {
       }
       campaign_contacts: {
         Row: {
-          call_log_id: string | null
           campaign_id: string
           created_at: string
           id: string
@@ -69,9 +68,9 @@ export type Database = {
           notes: string | null
           phone: string
           status: string
+          updated_at: string
         }
         Insert: {
-          call_log_id?: string | null
           campaign_id: string
           created_at?: string
           id?: string
@@ -79,9 +78,9 @@ export type Database = {
           notes?: string | null
           phone: string
           status?: string
+          updated_at?: string
         }
         Update: {
-          call_log_id?: string | null
           campaign_id?: string
           created_at?: string
           id?: string
@@ -89,6 +88,7 @@ export type Database = {
           notes?: string | null
           phone?: string
           status?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -97,7 +97,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "campaigns"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       campaigns: {
