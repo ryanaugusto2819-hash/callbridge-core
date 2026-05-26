@@ -590,6 +590,46 @@ export default function DialerPage() {
                   </div>
                 )}
 
+                {/* Soundboard: áudios pré-gravados */}
+                <div className="border rounded-lg p-3 bg-secondary/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Music className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-sm">Áudios Pré-gravados</span>
+                    <span className="text-xs text-muted-foreground ml-auto">
+                      Clique ou use a tecla de atalho
+                    </span>
+                  </div>
+                  {audioClips.length === 0 ? (
+                    <p className="text-xs text-muted-foreground text-center py-4">
+                      Nenhum áudio cadastrado. Vá em "Áudios" no menu para adicionar.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                      {audioClips.map((clip) => (
+                        <button
+                          key={clip.id}
+                          onClick={() => playAudioClip(clip)}
+                          disabled={playingClipId === clip.id}
+                          className="relative flex flex-col items-center justify-center gap-1 p-3 rounded-md bg-background hover:bg-primary/10 border transition-colors disabled:opacity-60"
+                          aria-label={`Tocar áudio ${clip.title}`}
+                        >
+                          {clip.shortcut_key && (
+                            <span className="absolute top-1 right-1 text-[10px] bg-primary/20 text-primary px-1.5 rounded font-mono">
+                              {clip.shortcut_key}
+                            </span>
+                          )}
+                          {playingClipId === clip.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                          ) : (
+                            <Volume2 className="h-4 w-4 text-primary" />
+                          )}
+                          <span className="text-xs font-medium text-center line-clamp-2">{clip.title}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                   {/* Notas */}
                   <div>
