@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      audio_clips: {
+        Row: {
+          audio_url: string
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          shortcut_key: string | null
+          storage_path: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audio_url: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          shortcut_key?: string | null
+          storage_path?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audio_url?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          shortcut_key?: string | null
+          storage_path?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       call_logs: {
         Row: {
           agent_id: string | null
