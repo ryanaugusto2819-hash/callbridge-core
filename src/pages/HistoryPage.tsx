@@ -58,7 +58,7 @@ export default function HistoryPage() {
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) toast.error("Erro ao carregar histórico");
-    else setCallLogs(data || []);
+    else setCallLogs(((data || []) as unknown as CallLog[]));
     setLoading(false);
   };
 
