@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Phone, Delete, Search, Mic, MicOff, Pause, Play, PhoneOff, Grid3X3, User, Loader2, PhoneIncoming, Volume2, FileText } from "lucide-react";
+import { Phone, Delete, Search, Mic, MicOff, Pause, Play, PhoneOff, Grid3X3, User, Loader2, PhoneIncoming, Volume2, FileText, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,13 @@ type Script = {
   content: string;
   response_options: ResponseOption[];
   is_active: boolean;
+};
+
+type AudioClip = {
+  id: string;
+  title: string;
+  audio_url: string;
+  shortcut_key: string | null;
 };
 
 const dialPad = [
@@ -56,6 +63,9 @@ export default function DialerPage() {
   const [activeScript, setActiveScript] = useState<Script | null>(null);
   const [scriptTab, setScriptTab] = useState("todos");
 
+  const [audioClips, setAudioClips] = useState<AudioClip[]>([]);
+  const [playingClipId, setPlayingClipId] = useState<string | null>(null);
+
   const deviceRef = useRef<Device | null>(null);
   const callRef = useRef<Call | null>(null);
   const callLogIdRef = useRef<string | null>(null);
@@ -63,7 +73,7 @@ export default function DialerPage() {
   const callNotesRef = useRef("");
 
   useEffect(() => {
-    if (isInCall) loadScripts();
+    if (isInCall) { loadScripts(); loadAudioClips(); }
   }, [isInCall]);
 
   // Timer de duração da chamada
@@ -192,8 +202,37 @@ export default function DialerPage() {
       .select("*")
       .eq("is_active", true)
       .order("category");
-    if (data) setScripts(data as Script[]);
+    if (data) setScripts(data as unknown as Script[]);
     setLoadingScripts(false);
+  };
+
+  const loadAudioClips = async () => {
+    const { data } = await supabase
+      .from("audio_clips")
+      .select("id, title, audio_url, shortcut_key")
+      .eq("is_active", true)
+      .order("display_order")
+      .order("created_at");
+    if (data) setAudioClips(data as AudioClip[]);
+  };
+
+  const playAudioClip = async (clip: AudioClip) => {
+    if (!currentCallSid) {
+      toast.error("Nenhuma chamada ativa para reproduzir o áudio");
+      return;
+    }
+    setPlayingClipId(clip.id);
+    try {
+      const { error } = await supabase.functions.invoke("twilio-play-audio", {
+        body: { callSid: currentCallSid, audioUrl: clip.audio_url },
+      });
+      if (error) throw error;
+      toast.success(`▶ Tocando: ${clip.title}`);
+    } catch (e) {
+      toast.error(`Erro ao tocar áudio: ${(e as Error).message}`);
+    } finally {
+      setTimeout(() => setPlayingClipId(null), 1500);
+    }
   };
 
   const playScript = (script: Script) => {
