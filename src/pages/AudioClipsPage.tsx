@@ -93,10 +93,31 @@ export default function AudioClipsPage() {
   };
 
   const handlePreview = (url: string) => {
-    if (audioRef.current) audioRef.current.pause();
-    const a = new Audio(url);
+    // Para o áudio anterior (se houver) e libera referência ANTES de criar o novo
+    if (audioRef.current) {
+      try {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+      } catch {}
+      audioRef.current = null;
+    }
+    const a = new Audio();
+    a.crossOrigin = "anonymous";
+    a.preload = "auto";
     audioRef.current = a;
-    a.play().catch((e) => toast.error(`Não foi possível reproduzir: ${e.message}`));
+
+    const onReady = () => {
+      a.play().catch((e: DOMException) => {
+        if (e.name === "AbortError") return; // ignorado: usuário trocou de áudio
+        toast.error(`Não foi possível reproduzir: ${e.message}`);
+      });
+    };
+    a.addEventListener("canplay", onReady, { once: true });
+    a.addEventListener("error", () => {
+      toast.error("Falha ao carregar o áudio. Verifique se o arquivo está acessível (bucket público).");
+    }, { once: true });
+    a.src = url;
+    a.load();
   };
 
   return (
