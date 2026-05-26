@@ -1,5 +1,7 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 
+// Toca um áudio para TODOS os participantes da conference
+// (agente + cliente) usando a API de Announce da Conference.
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -13,34 +15,48 @@ Deno.serve(async (req) => {
 
     const sid = Deno.env.get('TWILIO_ACCOUNT_SID');
     const token = Deno.env.get('TWILIO_AUTH_TOKEN');
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
     if (!sid || !token) {
       return new Response(JSON.stringify({ error: 'Twilio não configurado' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // TwiML que toca o áudio e devolve a chamada ao client do agente
-    const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Play>${audioUrl}</Play><Dial><Client>agent</Client></Dial></Response>`;
-
     const auth = btoa(`${sid}:${token}`);
-    const resp = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Calls/${callSid}.json`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Basic ${auth}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({ Twiml: twiml }),
-    });
 
-    const data = await resp.json();
-    if (!resp.ok) {
-      console.error('Twilio update call error', data);
-      return new Response(JSON.stringify({ error: data.message || 'Erro ao tocar áudio', details: data }), {
-        status: resp.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    // 1) Descobre a Conference: friendlyName = callSid do agente
+    const confListUrl = `https://api.twilio.com/2010-04-01/Accounts/${sid}/Conferences.json?FriendlyName=${encodeURIComponent(callSid)}&Status=in-progress`;
+    const confRes = await fetch(confListUrl, { headers: { 'Authorization': `Basic ${auth}` } });
+    const confData = await confRes.json();
+    if (!confRes.ok) {
+      console.error('list conferences error', confData);
+      return new Response(JSON.stringify({ error: 'Falha ao listar conferências', details: confData }), {
+        status: confRes.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const conf = (confData.conferences || [])[0];
+    if (!conf) {
+      return new Response(JSON.stringify({ error: 'Conferência ativa não encontrada para esta chamada' }), {
+        status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({ ok: true, sid: data.sid }), {
+    // 2) Toca áudio na conference inteira via AnnounceUrl
+    const announceUrl = `${SUPABASE_URL}/functions/v1/twilio-announce-twiml?audio=${encodeURIComponent(audioUrl)}`;
+    const updRes = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Conferences/${conf.sid}.json`, {
+      method: 'POST',
+      headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ AnnounceUrl: announceUrl, AnnounceMethod: 'GET' }),
+    });
+    const updData = await updRes.json();
+    if (!updRes.ok) {
+      console.error('conference announce error', updData);
+      return new Response(JSON.stringify({ error: updData.message || 'Erro ao anunciar áudio', details: updData }), {
+        status: updRes.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response(JSON.stringify({ ok: true, conferenceSid: conf.sid }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
