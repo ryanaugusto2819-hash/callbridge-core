@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Phone, Delete, Search, Mic, MicOff, Pause, Play, PhoneOff, Grid3X3, User, Loader2, PhoneIncoming } from "lucide-react";
+import { Phone, Delete, Search, Mic, MicOff, Pause, Play, PhoneOff, Grid3X3, User, Loader2, PhoneIncoming, Volume2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Device, Call } from "@twilio/voice-sdk";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+type ResponseOption = { objection: string; response: string };
+
+type Script = {
+  id: string;
+  title: string;
+  category: string;
+  content: string;
+  response_options: ResponseOption[];
+  is_active: boolean;
+};
 
 const dialPad = [
   { digit: "1", letters: "" },
@@ -39,11 +51,20 @@ export default function DialerPage() {
   const [deviceReady, setDeviceReady] = useState(false);
   const [incomingCall, setIncomingCall] = useState<Call | null>(null);
 
+  const [scripts, setScripts] = useState<Script[]>([]);
+  const [loadingScripts, setLoadingScripts] = useState(false);
+  const [activeScript, setActiveScript] = useState<Script | null>(null);
+  const [scriptTab, setScriptTab] = useState("todos");
+
   const deviceRef = useRef<Device | null>(null);
   const callRef = useRef<Call | null>(null);
   const callLogIdRef = useRef<string | null>(null);
   const callDurationRef = useRef(0);
   const callNotesRef = useRef("");
+
+  useEffect(() => {
+    if (isInCall) loadScripts();
+  }, [isInCall]);
 
   // Timer de duração da chamada
   useEffect(() => {
@@ -162,6 +183,28 @@ export default function DialerPage() {
       toast.error(`Erro na chamada: ${err.message}`);
       setIsCalling(false);
     });
+  };
+
+  const loadScripts = async () => {
+    setLoadingScripts(true);
+    const { data } = await supabase
+      .from("scripts")
+      .select("*")
+      .eq("is_active", true)
+      .order("category");
+    if (data) setScripts(data as Script[]);
+    setLoadingScripts(false);
+  };
+
+  const playScript = (script: Script) => {
+    setActiveScript((prev) => (prev?.id === script.id ? null : script));
+    // TODO: quando backend estiver pronto, chamar endpoint que injeta o áudio na chamada via Twilio
+    toast.info(`Roteiro selecionado: ${script.title}`, { duration: 2000 });
+  };
+
+  const playResponseOption = (opt: ResponseOption) => {
+    // TODO: conectar ao backend para tocar o áudio da resposta
+    toast.info(`Resposta: ${opt.objection}`, { duration: 2000 });
   };
 
   const loadRecentCalls = async () => {
@@ -289,6 +332,10 @@ export default function DialerPage() {
     if (status === "failed" || status === "busy" || status === "no-answer") return "bg-destructive/20 text-destructive";
     return "bg-muted text-muted-foreground";
   };
+
+  const scriptCategories = [...new Set(scripts.map((s) => s.category))];
+  const filteredScripts =
+    scriptTab === "todos" ? scripts : scripts.filter((s) => s.category === scriptTab);
 
   return (
     <div className="space-y-6">
@@ -487,14 +534,92 @@ export default function DialerPage() {
                   </div>
                 )}
 
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Notas da Chamada</label>
-                  <Textarea
-                    placeholder="Adicionar notas sobre esta chamada..."
-                    value={callNotes}
-                    onChange={(e) => { setCallNotes(e.target.value); callNotesRef.current = e.target.value; }}
-                    rows={4}
-                  />
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                  {/* Notas */}
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Notas da Chamada</label>
+                    <Textarea
+                      placeholder="Adicionar notas sobre esta chamada..."
+                      value={callNotes}
+                      onChange={(e) => { setCallNotes(e.target.value); callNotesRef.current = e.target.value; }}
+                      rows={5}
+                    />
+                  </div>
+
+                  {/* Painel de Roteiros */}
+                  <div className="border rounded-lg p-3 flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <Volume2 className="h-4 w-4 text-primary" />
+                      <span className="font-medium text-sm">Roteiros</span>
+                      {loadingScripts && <Loader2 className="h-3 w-3 animate-spin ml-auto" />}
+                    </div>
+
+                    {/* Filtro por categoria */}
+                    <div className="flex gap-1 flex-wrap">
+                      {["todos", ...scriptCategories].map((cat) => (
+                        <button
+                          key={cat}
+                          onClick={() => setScriptTab(cat)}
+                          className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
+                            scriptTab === cat
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "border-border hover:bg-secondary"
+                          }`}
+                        >
+                          {cat === "todos" ? "Todos" : cat}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Lista de roteiros */}
+                    <ScrollArea className="h-44">
+                      <div className="space-y-1.5 pr-2">
+                        {filteredScripts.length === 0 && !loadingScripts && (
+                          <p className="text-xs text-muted-foreground text-center py-6">
+                            {scripts.length === 0 ? "Nenhum roteiro cadastrado" : "Nenhum roteiro nesta categoria"}
+                          </p>
+                        )}
+                        {filteredScripts.map((script) => (
+                          <div key={script.id} className="rounded-md border bg-secondary/30">
+                            <button
+                              className="w-full flex items-center gap-2 p-2 text-left hover:bg-secondary/60 rounded-md transition-colors"
+                              onClick={() => playScript(script)}
+                            >
+                              <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span className="text-sm font-medium flex-1 truncate">{script.title}</span>
+                              <span className="text-xs text-muted-foreground shrink-0 border rounded px-1.5 py-0.5 bg-background">
+                                {script.category}
+                              </span>
+                              <Volume2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                            </button>
+
+                            {activeScript?.id === script.id && (
+                              <div className="px-3 pb-3 space-y-2 border-t mt-0.5 pt-2">
+                                <p className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
+                                  {script.content}
+                                </p>
+                                {script.response_options.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="text-xs font-semibold text-muted-foreground">Objeções:</p>
+                                    {script.response_options.map((opt, i) => (
+                                      <button
+                                        key={i}
+                                        className="w-full text-left text-xs rounded p-2 bg-background hover:bg-primary/10 transition-colors border"
+                                        onClick={() => playResponseOption(opt)}
+                                      >
+                                        <span className="font-medium text-primary block">"{opt.objection}"</span>
+                                        <span className="text-muted-foreground mt-0.5 block">{opt.response}</span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
                 </div>
               </div>
             ) : (
