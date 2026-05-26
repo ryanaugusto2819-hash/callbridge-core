@@ -16,7 +16,17 @@ const statusBadgeMap: Record<string, { label: string; variant: "default" | "seco
   "wrap-up": { label: "Pós-atendimento", variant: "secondary" },
 };
 
-const activeCalls: never[] = [];
+type ActiveCall = {
+  id: string;
+  status: string;
+  agent: string;
+  contact: string;
+  phone: string;
+  direction: string;
+  duration: string;
+};
+
+const activeCalls: ActiveCall[] = [];
 
 export default function ActiveCallsPage() {
   return (
