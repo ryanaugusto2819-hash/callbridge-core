@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Phone, PhoneCall, ListOrdered, Users, History,
-  FileText, Megaphone, BarChart3, UserCog, Settings, Headphones,
+  FileText, Megaphone, BarChart3, UserCog, Settings, Headphones, Music,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -21,6 +21,7 @@ const mainNav = [
 
 const operationsNav = [
   { title: "Scripts", url: "/scripts", icon: FileText },
+  { title: "Áudios", url: "/audios", icon: Music },
   { title: "Campanhas", url: "/campaigns", icon: Megaphone },
   { title: "Relatórios", url: "/reports", icon: BarChart3 },
   { title: "Agentes", url: "/agents", icon: UserCog },
