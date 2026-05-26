@@ -76,6 +76,23 @@ export default function DialerPage() {
     if (isInCall) { loadScripts(); loadAudioClips(); }
   }, [isInCall]);
 
+  // Atalhos de teclado para tocar áudios durante a chamada
+  useEffect(() => {
+    if (!isInCall) return;
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
+      const clip = audioClips.find((c) => c.shortcut_key && c.shortcut_key.toLowerCase() === e.key.toLowerCase());
+      if (clip) {
+        e.preventDefault();
+        playAudioClip(clip);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInCall, audioClips, currentCallSid]);
+
   // Timer de duração da chamada
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
