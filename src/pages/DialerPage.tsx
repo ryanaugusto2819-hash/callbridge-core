@@ -196,6 +196,29 @@ export default function DialerPage() {
       callDurationRef.current = 0;
       const sid = call.parameters.CallSid || null;
       setCurrentCallSid(sid);
+      // Garante que o áudio enviado ao Twilio é o stream mixado (mic + clipes).
+      try {
+        const mixedTrack = getCallAudioMixer().getMixedTrack();
+        const anyCall = call as any;
+        const pc: RTCPeerConnection | undefined =
+          anyCall?._mediaHandler?.version?.pc ||
+          anyCall?._mediaHandler?._pc ||
+          anyCall?.mediaStream?.version?.pc;
+        if (pc && mixedTrack) {
+          const audioSender = pc.getSenders().find((s) => s.track && s.track.kind === "audio");
+          if (audioSender && audioSender.track !== mixedTrack) {
+            audioSender.replaceTrack(mixedTrack).then(() => {
+              console.log("[dialer] replaceTrack OK -> mixed track");
+            }).catch((e) => console.warn("[dialer] replaceTrack falhou", e));
+          } else {
+            console.log("[dialer] sender já usa mixed track ou não encontrado", { audioSender: !!audioSender });
+          }
+        } else {
+          console.warn("[dialer] PC ou mixedTrack ausente", { pc: !!pc, mixedTrack: !!mixedTrack });
+        }
+      } catch (e) {
+        console.warn("[dialer] erro ao injetar mixed track", e);
+      }
       supabase.from("call_logs").insert({
         phone_number: phone,
         direction,

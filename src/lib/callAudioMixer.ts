@@ -54,11 +54,19 @@ class CallAudioMixer {
   /** Recebe o stream do microfone real e devolve o stream mixado para o Twilio. */
   wireMicStream(micStream: MediaStream): MediaStream {
     const ctx = this.ensureContext();
+    // Resume imediatamente — senão o MediaStreamDestination envia silêncio
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
     // descarta source antigo se houver
     try { this.micSource?.disconnect(); } catch {}
     this.micSource = ctx.createMediaStreamSource(micStream);
     this.micSource.connect(this.dest!);
+    console.log("[mixer] wireMicStream: tracks=", this.dest!.stream.getAudioTracks().length, "ctxState=", ctx.state);
     return this.dest!.stream;
+  }
+
+  /** Retorna o track mixado atual (mic + clipes) para uso com replaceTrack. */
+  getMixedTrack(): MediaStreamTrack | null {
+    return this.dest?.stream.getAudioTracks()[0] || null;
   }
 
   subscribe(fn: Listener) {
