@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Phone, Delete, Search, Mic, MicOff, Pause, Play, PhoneOff, Grid3X3, User, Loader2, PhoneIncoming, Volume2, FileText, Music } from "lucide-react";
+import { Phone, Delete, Search, Mic, MicOff, Pause, Play, PhoneOff, Grid3X3, User, Loader2, PhoneIncoming, Volume2, FileText, Music, Square, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Device, Call } from "@twilio/voice-sdk";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  installCallAudioMixer,
+  uninstallCallAudioMixer,
+  getCallAudioMixer,
+  type MixerState,
+} from "@/lib/callAudioMixer";
 
 type ResponseOption = { objection: string; response: string };
 
@@ -65,6 +71,14 @@ export default function DialerPage() {
 
   const [audioClips, setAudioClips] = useState<AudioClip[]>([]);
   const [playingClipId, setPlayingClipId] = useState<string | null>(null);
+  const [mixerState, setMixerState] = useState<MixerState>({
+    currentUrl: null,
+    currentTitle: null,
+    isPlaying: false,
+    isPaused: false,
+    duration: 0,
+    position: 0,
+  });
 
   const deviceRef = useRef<Device | null>(null);
   const callRef = useRef<Call | null>(null);
@@ -110,10 +124,18 @@ export default function DialerPage() {
 
   // Inicializar Twilio Device ao montar
   useEffect(() => {
+    installCallAudioMixer();
     initDevice();
     return () => {
       deviceRef.current?.destroy();
+      uninstallCallAudioMixer();
     };
+  }, []);
+
+  // Assinar estado do mixer de áudio
+  useEffect(() => {
+    const unsub = getCallAudioMixer().subscribe(setMixerState);
+    return () => { unsub(); };
   }, []);
 
   useEffect(() => {
@@ -193,6 +215,7 @@ export default function DialerPage() {
         }).eq("id", callLogIdRef.current);
         callLogIdRef.current = null;
       }
+      getCallAudioMixer().stop();
       callDurationRef.current = 0;
       callNotesRef.current = "";
       setIsInCall(false);
@@ -234,23 +257,24 @@ export default function DialerPage() {
   };
 
   const playAudioClip = async (clip: AudioClip) => {
-    if (!currentCallSid) {
+    if (!isInCall) {
       toast.error("Nenhuma chamada ativa para reproduzir o áudio");
       return;
     }
     setPlayingClipId(clip.id);
     try {
-      const { error } = await supabase.functions.invoke("twilio-play-audio", {
-        body: { callSid: currentCallSid, audioUrl: clip.audio_url },
-      });
-      if (error) throw error;
+      await getCallAudioMixer().play(clip.audio_url, clip.title);
       toast.success(`▶ Tocando: ${clip.title}`);
     } catch (e) {
       toast.error(`Erro ao tocar áudio: ${(e as Error).message}`);
     } finally {
-      setTimeout(() => setPlayingClipId(null), 1500);
+      setTimeout(() => setPlayingClipId(null), 600);
     }
   };
+
+  const handleMixerPause = () => getCallAudioMixer().pause();
+  const handleMixerResume = () => getCallAudioMixer().resume();
+  const handleMixerStop = () => getCallAudioMixer().stop();
 
   const playScript = (script: Script) => {
     setActiveScript((prev) => (prev?.id === script.id ? null : script));
@@ -595,10 +619,52 @@ export default function DialerPage() {
                   <div className="flex items-center gap-2 mb-2">
                     <Music className="h-4 w-4 text-primary" />
                     <span className="font-medium text-sm">Áudios Pré-gravados</span>
+                    <Badge variant="outline" className="ml-2 gap-1 text-[10px] border-destructive/40 text-destructive">
+                      <Circle className="h-2 w-2 fill-destructive text-destructive animate-pulse" />
+                      Gravando
+                    </Badge>
                     <span className="text-xs text-muted-foreground ml-auto">
                       Clique ou use a tecla de atalho
                     </span>
                   </div>
+
+                  {/* Player do áudio atual */}
+                  {mixerState.currentUrl && (
+                    <div className="mb-3 p-2 rounded-md bg-background border">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <Volume2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <span className="text-xs font-medium truncate flex-1">
+                          {mixerState.currentTitle || "Áudio"}
+                        </span>
+                        <span className="text-[10px] font-mono text-muted-foreground">
+                          {formatDuration(Math.floor(mixerState.position))} / {formatDuration(Math.floor(mixerState.duration))}
+                        </span>
+                      </div>
+                      <div className="h-1 bg-secondary rounded-full overflow-hidden mb-2">
+                        <div
+                          className="h-full bg-primary transition-all"
+                          style={{
+                            width: `${mixerState.duration ? (mixerState.position / mixerState.duration) * 100 : 0}%`,
+                          }}
+                        />
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {mixerState.isPlaying ? (
+                          <Button size="sm" variant="secondary" onClick={handleMixerPause} className="h-7 gap-1" aria-label="Pausar áudio">
+                            <Pause className="h-3 w-3" /> Pausar
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="secondary" onClick={handleMixerResume} className="h-7 gap-1" aria-label="Retomar áudio">
+                            <Play className="h-3 w-3" /> Retomar
+                          </Button>
+                        )}
+                        <Button size="sm" variant="ghost" onClick={handleMixerStop} className="h-7 gap-1 text-destructive" aria-label="Parar áudio">
+                          <Square className="h-3 w-3" /> Parar
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
                   {audioClips.length === 0 ? (
                     <p className="text-xs text-muted-foreground text-center py-4">
                       Nenhum áudio cadastrado. Vá em "Áudios" no menu para adicionar.
@@ -610,7 +676,9 @@ export default function DialerPage() {
                           key={clip.id}
                           onClick={() => playAudioClip(clip)}
                           disabled={playingClipId === clip.id}
-                          className="relative flex flex-col items-center justify-center gap-1 p-3 rounded-md bg-background hover:bg-primary/10 border transition-colors disabled:opacity-60"
+                          className={`relative flex flex-col items-center justify-center gap-1 p-3 rounded-md bg-background hover:bg-primary/10 border transition-colors disabled:opacity-60 ${
+                            mixerState.currentUrl === clip.audio_url ? "border-primary ring-1 ring-primary" : ""
+                          }`}
                           aria-label={`Tocar áudio ${clip.title}`}
                         >
                           {clip.shortcut_key && (
