@@ -215,6 +215,7 @@ export default function DialerPage() {
         }).eq("id", callLogIdRef.current);
         callLogIdRef.current = null;
       }
+      getCallAudioMixer().stop();
       callDurationRef.current = 0;
       callNotesRef.current = "";
       setIsInCall(false);
